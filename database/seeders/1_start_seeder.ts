@@ -1,3 +1,4 @@
+import { PostFactory } from '#database/factories/post_factory';
 import { UserFactory } from '#database/factories/user_factory';
 import Category from '#models/category';
 import { CollectionTypes } from '#models/collection';
@@ -28,6 +29,17 @@ export default class extends BaseSeeder {
         .slice(0, Math.floor(Math.random() * 3) + 1) // 1~3개 선택
         .map(category => category.id)
       await user.related('favoriteCategories').attach(randomCategoryIds)
+    }
+
+    const userCollections = await users[0].related('collections').query()
+    let index = 1
+    for (const collection of userCollections) {
+      console.log(collection.id)
+      await PostFactory.merge({
+        userId:  users[0].id,
+        collectionId: collection.id
+      }).with('metadatas', 3).createMany(5)
+      index++
     }
   }
 }

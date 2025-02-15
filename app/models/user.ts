@@ -6,6 +6,7 @@ import type { BelongsTo, HasMany, HasOne, ManyToMany } from '@adonisjs/lucid/typ
 import { DateTime } from 'luxon'
 import Category from './category.js'
 import Collection from './collection.js'
+import Post from './post.js'
 import Role, { Roles } from './role.js'
 import UserToken from './user_token.js'
 
@@ -20,9 +21,6 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @column()
   declare roleId: Roles
-
-  @column()
-  declare fileGroupId: number | null
 
   @column()
   declare nickname: string
@@ -42,6 +40,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare otp: string | null
 
+  @column()
+  declare avatarUrl: string | null
+
   @column.dateTime()
   declare otpExpiryDate: DateTime | null
 
@@ -59,6 +60,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @hasMany(() => Collection)
   declare collections: HasMany<typeof Collection>
+
+  @hasMany(() => Post)
+  declare posts: HasMany<typeof Post>
 
   @manyToMany(() => Category, {
     pivotTable: 'favorites',

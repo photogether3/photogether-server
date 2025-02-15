@@ -1,17 +1,11 @@
 import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
-import Category from './category.js'
-import Post from './post.js'
+import Collection from './collection.js'
+import PostMetadata from './post_metadata.js'
 import User from './user.js'
 
-export enum CollectionTypes {
-  DEFAULT = 'DEFAULT',
-  UNCATEGORIZED = 'UNCATEGORIZED',
-  TRASH = 'TRASH'
-}
-
-export default class Collection extends BaseModel {
+export default class Post extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
 
@@ -19,26 +13,29 @@ export default class Collection extends BaseModel {
   declare userId: number
 
   @column()
-  declare categoryId: number | null
-
-  @column()
-  declare type: CollectionTypes
+  declare collectionId: number
 
   @column()
   declare title: string
+
+  @column()
+  declare content: string
+
+  @column()
+  declare posterUrl: string | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
-
+  
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>
 
-  @belongsTo(() => Category)
-  declare category: BelongsTo<typeof Category>
+  @belongsTo(() => Collection)
+  declare collection: BelongsTo<typeof Collection>
 
-  @hasMany(() => Post)
-  declare posts: HasMany<typeof Post>
+  @hasMany(() => PostMetadata)
+  declare metadatas: HasMany<typeof PostMetadata>
 }

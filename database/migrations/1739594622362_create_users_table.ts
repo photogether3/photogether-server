@@ -7,7 +7,6 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
       table.integer('role_id').unsigned().references('roles.id').notNullable()
-      table.integer('file_group_id').unsigned().nullable()
       table.string('nickname', 20).notNullable()
       table.text('bio').nullable()
       table.string('email', 50).notNullable().unique()
@@ -15,6 +14,7 @@ export default class extends BaseSchema {
       table.string('password', 200).notNullable()
       table.string('otp', 6).nullable()
       table.timestamp('otp_expiry_date').nullable()
+      table.string('avatar_url', 255).nullable()
 
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
