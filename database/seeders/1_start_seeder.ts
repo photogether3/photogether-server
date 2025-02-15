@@ -1,10 +1,25 @@
 import { UserFactory } from '#database/factories/user_factory';
 import Category from '#models/category';
+import { CollectionTypes } from '#models/collection';
 import { BaseSeeder } from '@adonisjs/lucid/seeders';
 
 export default class extends BaseSeeder {
   async run() {
-    const users = await UserFactory.with('token').createMany(5)
+    const users = await UserFactory
+      .with('token')
+      .with('collections', 1, (builder) => builder.merge({
+        categoryId: null,
+        title: '미분류',
+        type: CollectionTypes.UNCATEGORIZED
+      }))
+      .with('collections', 1, (builder) => builder.merge({
+        categoryId: null,
+        title: '휴지통',
+        type: CollectionTypes.TRASH
+      }))
+      .with('collections', 3)
+      .createMany(5)
+
     const categories = await Category.all()
 
     for (const user of users) {

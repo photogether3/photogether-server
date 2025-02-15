@@ -1,10 +1,11 @@
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { compose } from '@adonisjs/core/helpers'
 import hash from '@adonisjs/core/services/hash'
-import { BaseModel, belongsTo, column, hasOne, manyToMany } from '@adonisjs/lucid/orm'
-import type { BelongsTo, HasOne, ManyToMany } from '@adonisjs/lucid/types/relations'
+import { BaseModel, belongsTo, column, hasMany, hasOne, manyToMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany, HasOne, ManyToMany } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
 import Category from './category.js'
+import Collection from './collection.js'
 import Role, { Roles } from './role.js'
 import UserToken from './user_token.js'
 
@@ -55,6 +56,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @hasOne(() => UserToken)
   declare token: HasOne<typeof UserToken>
+
+  @hasMany(() => Collection)
+  declare collections: HasMany<typeof Collection>
 
   @manyToMany(() => Category, {
     pivotTable: 'favorites',

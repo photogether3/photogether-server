@@ -1,6 +1,7 @@
 import { Roles } from '#models/role'
 import User from '#models/user'
 import factory from '@adonisjs/lucid/factories'
+import { CollectionFactory } from './collection_factory.js'
 import { UserTokenFactory } from './user_token_factory.js'
 
 export const UserFactory = factory
@@ -17,4 +18,5 @@ export const UserFactory = factory
     }
   })
   .relation('token', () => UserTokenFactory)
+  .relation('collections', () => CollectionFactory)
   .build()
