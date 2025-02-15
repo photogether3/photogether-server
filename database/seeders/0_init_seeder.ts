@@ -16,7 +16,6 @@ export default class extends BaseSeeder {
       }
     ])
 
-    // 카테고리 생성
     await Category.createMany([
       {
         id: 1001,
