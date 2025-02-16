@@ -12,3 +12,10 @@ export const generateOtpValidator = vine.compile(
     email: vine.string().email()
   })
 )
+
+export const verifyOtpValidator = vine.compile(
+  vine.object({
+    email: vine.string().email(),
+    otp: vine.string().minLength(6).maxLength(6)
+  })
+)

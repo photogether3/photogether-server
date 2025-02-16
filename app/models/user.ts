@@ -83,10 +83,23 @@ export default class User extends compose(BaseModel, AuthFinder) {
     })
   }
 
+  verifyOtp(otp: string) {
+    console.log(this.otp, otp)
+    return this.otp !== otp ? false : true
+  }
+
   async withGenerateOtp() {
     return await User.updateOrCreate({ id: this.id }, {
       otp: User.generateOTP(),
       otpExpiryDate: DateTime.now().plus({ minutes: 5 }),
+    })
+  }
+
+  async withVerifiedEmail() {
+    return await User.updateOrCreate({ id: this.id }, {
+      isEmailVerified: true,
+      otp: null,
+      otpExpiryDate: null,
     })
   }
 

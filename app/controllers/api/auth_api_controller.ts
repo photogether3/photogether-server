@@ -1,6 +1,6 @@
 import Collection from '#models/collection'
 import User from '#models/user'
-import { generateOtpValidator, registerValidator } from '#validators/auth'
+import { generateOtpValidator, registerValidator, verifyOtpValidator } from '#validators/auth'
 import { Exception } from '@adonisjs/core/exceptions'
 import type { HttpContext } from '@adonisjs/core/http'
 import mail from '@adonisjs/mail/services/main'
@@ -56,7 +56,26 @@ export default class AuthApiController {
     })
   }
 
-  async verifyOtp() { }
+  async verifyOtp({ request }: HttpContext) {
+    // 유효성 검사
+    const payload = await request.validateUsing(verifyOtpValidator)
+
+    // 이미 존재하는 이메일인지 확인
+    let user = await User.findBy('email', payload.email)
+    if (!user) {
+      throw new Exception('이메일을 찾을 수 없습니다.', { status: 404, code: 'E_EMAIL_NOT_FOUND' })
+    }
+
+    // OTP 인증 코드 확인
+    if (!user.verifyOtp(payload.otp)) {
+      throw new Exception('OTP 인증 코드가 일치하지 않습니다.', { status: 400, code: 'E_INVALID_OTP' })
+    }
+
+    // 이메일 인증 완료
+    user = await user.withVerifiedEmail()
+
+    console.log(user.serialize())
+  }
 
   async refresh() { }
 
