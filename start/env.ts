@@ -18,4 +18,12 @@ export default await Env.create(new URL('../', import.meta.url), {
   HOST: Env.schema.string({ format: 'host' }),
   LOG_LEVEL: Env.schema.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']),
   DATABASE_URL: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Variables for configuring the mail package
+  |----------------------------------------------------------
+  */
+  SMTP_HOST: Env.schema.string(),
+  SMTP_PORT: Env.schema.string()
 })
