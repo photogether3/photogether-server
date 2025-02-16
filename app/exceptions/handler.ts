@@ -1,5 +1,6 @@
+import { ExceptionHandler, HttpContext } from '@adonisjs/core/http'
 import app from '@adonisjs/core/services/app'
-import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
+import { errors } from '@vinejs/vine'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -13,6 +14,13 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * response to the client
    */
   async handle(error: unknown, ctx: HttpContext) {
+    if (error instanceof errors.E_VALIDATION_ERROR) {
+      return ctx.response.badRequest({
+        statusCode: 400,
+        message: error.messages[0].message,
+      })
+    }
+
     return super.handle(error, ctx)
   }
 
