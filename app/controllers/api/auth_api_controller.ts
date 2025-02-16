@@ -3,6 +3,7 @@ import User from '#models/user'
 import { generateOtpValidator, registerValidator } from '#validators/auth'
 import { Exception } from '@adonisjs/core/exceptions'
 import type { HttpContext } from '@adonisjs/core/http'
+import mail from '@adonisjs/mail/services/main'
 
 export default class AuthApiController {
 
@@ -33,13 +34,26 @@ export default class AuthApiController {
   }
 
   async generateOtp({ request }: HttpContext) {
+    // 유효성 검사
     const payload = await request.validateUsing(generateOtpValidator)
+
+    // 이미 존재하는 이메일인지 확인
     let user = await User.findBy('email', payload.email)
     if (!user) {
       throw new Exception('이메일을 찾을 수 없습니다.', { status: 404, code: 'E_EMAIL_NOT_FOUND' })
     }
+
+    // OTP 생성 및 저장
     user = await user.withGenerateOtp()
     console.log(user.serialize())
+
+    // 이메일 전송
+    await mail.send((message) => {
+      message
+        .to(user.email)
+        .subject('OTP 인증 코드 발송')
+        .htmlView('shared/mail/template', { otp: user.otp })
+    })
   }
 
   async verifyOtp() { }
