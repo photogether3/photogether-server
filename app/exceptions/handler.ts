@@ -14,14 +14,21 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * response to the client
    */
   async handle(error: unknown, ctx: HttpContext) {
-    if (error instanceof errors.E_VALIDATION_ERROR) {
+    const err: any = error
+    console.log(err)
+    if (err instanceof errors.E_VALIDATION_ERROR) {
       return ctx.response.badRequest({
         statusCode: 400,
-        message: error.messages[0].message,
+        code: err.code,
+        message: err.messages[0].message,
       })
     }
 
-    return super.handle(error, ctx)
+    return ctx.response.badRequest({
+      statusCode: err.status ?? 500,
+      code: err.code,
+      message: err.message,
+    })
   }
 
   /**

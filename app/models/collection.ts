@@ -12,6 +12,7 @@ export enum CollectionTypes {
 }
 
 export default class Collection extends BaseModel {
+
   @column({ isPrimary: true })
   declare id: number
 
@@ -41,4 +42,21 @@ export default class Collection extends BaseModel {
 
   @hasMany(() => Post)
   declare posts: HasMany<typeof Post>
+
+  static async fromBases(userId: number) {
+    return await this.createMany([
+      {
+        userId,
+        categoryId: null,
+        type: CollectionTypes.UNCATEGORIZED,
+        title: '미분류'
+      },
+      {
+        userId,
+        categoryId: null,
+        type: CollectionTypes.TRASH,
+        title: '휴지통'
+      }
+    ])
+  }
 }
