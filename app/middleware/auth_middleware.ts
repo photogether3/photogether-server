@@ -36,8 +36,7 @@ export default class AuthMiddleware {
       // (ctx.request as any)['user'] = payload
       // ctx.request.
       const user = await User.findByOrFail('id', Number(payload.sub))
-      console.log(user.serialize())
-      
+      ctx.user = user
     } catch (err) {
       return ctx.response.status(401).json({
         errorCode: 401,

@@ -80,6 +80,7 @@ export default class AuthApiController {
 
   async verifyOtp({ request }: HttpContext) {
     // 유효성 검사
+    request
     const payload = await request.validateUsing(verifyOtpValidator)
 
     // 이미 존재하는 이메일인지 확인
@@ -124,5 +125,12 @@ export default class AuthApiController {
     return tokens
   }
 
-  async logout() { }
+  async logout({ user }: HttpContext) {
+    // 토큰 조회
+    const userToken = await UserToken.findBy('userId', user.id)
+    if (!userToken) return
+
+    // 토큰 삭제
+    await userToken.delete()
+  }
 }
