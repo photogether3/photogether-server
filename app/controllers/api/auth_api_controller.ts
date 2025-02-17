@@ -18,26 +18,25 @@ export default class AuthApiController {
   async login({ request }: HttpContext) {
     const dto: LoginDto = await request.validateUsing(loginValidator)
 
+    // 아이디 확인
     let user = await User.findBy('email', dto.email)
     if (!user) {
       throw new Exception('아이디 또는 비밀번호를 찾을 수 없습니다.', { status: 404, code: 'E_USER_NOT_FOUND' })
     }
 
-    const result = await user.verifyPassword(dto.password)
-    console.log(result)
+    // 비밀번호 확인
     if (!await user.verifyPassword(dto.password)) {
       throw new Exception('아이디 또는 비밀번호를 찾을 수 없습니다.', { status: 404, code: 'E_USER_NOT_FOUND' })
     }
 
+    // 이메일 인증 여부 확인
     if (!user.isEmailVerified) {
       throw new Exception('인증되지 않은 계정입니다.', { status: 404, code: 'E_EMAIL_NOT_VERIFIED' })
     }
 
+    // 토큰 생성
     const tokens = this.jwtService.generateTokens(user.id)
-    console.log(tokens)
-
-    await UserToken.from(user.id, tokens.refreshToken)
-
+    await UserToken.createOrUpdate(user.id, tokens.refreshToken)
     return tokens
   }
 
@@ -97,7 +96,10 @@ export default class AuthApiController {
     // 이메일 인증 완료
     user = await user.withVerifiedEmail()
 
-    console.log(user.serialize())
+    // 토큰 발급
+    const tokens = this.jwtService.generateTokens(user.id)
+    await UserToken.createOrUpdate(user.id, tokens.refreshToken)
+    return tokens
   }
 
   async refresh() { }
