@@ -31,3 +31,9 @@ export const verifyOtpValidator = vine.compile(
   })
 )
 export type VerifyOtpDto = Infer<typeof verifyOtpValidator>
+
+export const refreshValidator = vine.compile(
+  vine.object({
+    refreshToken: vine.string(),
+  })
+)

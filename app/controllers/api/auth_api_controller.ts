@@ -2,7 +2,7 @@ import Collection from '#models/collection'
 import User from '#models/user'
 import UserToken from '#models/user_token'
 import { JwtService } from '#services/jwt_service'
-import { generateOtpValidator, LoginDto, loginValidator, registerValidator, verifyOtpValidator } from '#validators/auth'
+import { generateOtpValidator, LoginDto, loginValidator, refreshValidator, registerValidator, verifyOtpValidator } from '#validators/auth'
 import { inject } from '@adonisjs/core'
 import { Exception } from '@adonisjs/core/exceptions'
 import type { HttpContext } from '@adonisjs/core/http'
@@ -102,7 +102,27 @@ export default class AuthApiController {
     return tokens
   }
 
-  async refresh() { }
+  async refresh({ request }: HttpContext) {
+    // 유효성 검사
+    let refreshTokenString = request.headers()['x-refresh-token'] as string
+    const refreshToken = await refreshValidator.validate({ refreshToken: refreshTokenString })
+
+    //  토큰 확인
+    const userToken = await UserToken.findBy('refreshToken', refreshToken.refreshToken)
+    if (!userToken) {
+      throw new Exception('토큰이 유효하지 않습니다.', { status: 401, code: 'E_INVALID_TOKEN' })
+    }
+
+    //  토큰 만료 확인
+    if (userToken.expiryDate.diffNow('seconds').seconds < 0) {
+      throw new Exception('토큰이 만료되었습니다.', { status: 401, code: 'E_EXPIRED_TOKEN' })
+    }
+
+    // 토큰 발급
+    const tokens = this.jwtService.generateTokens(userToken.userId)
+    await userToken.withUpdate(tokens.refreshToken)
+    return tokens
+  }
 
   async logout() { }
 }

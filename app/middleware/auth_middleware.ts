@@ -1,3 +1,5 @@
+import User from '#models/user'
+import env from '#start/env'
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import jwt from 'jsonwebtoken'
@@ -30,10 +32,12 @@ export default class AuthMiddleware {
     }
 
     try {
-      const payload = jwt.verify(token, 'secret')
+      const payload = jwt.verify(token, env.get('APP_KEY')) as jwt.JwtPayload
       // (ctx.request as any)['user'] = payload
       // ctx.request.
-      console.log(payload)
+      const user = await User.findByOrFail('id', Number(payload.sub))
+      console.log(user.serialize())
+      
     } catch (err) {
       return ctx.response.status(401).json({
         errorCode: 401,

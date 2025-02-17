@@ -48,4 +48,11 @@ export default class UserToken extends BaseModel {
       ...initialValue
     })
   }
+
+  async withUpdate(refreshToken: string) {
+    return await UserToken.updateOrCreate({ userId: this.userId }, {
+      refreshToken: refreshToken,
+      lastRefreshingDate: DateTime.now(),
+    })
+  }
 }
