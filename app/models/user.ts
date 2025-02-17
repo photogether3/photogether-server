@@ -1,3 +1,4 @@
+import { RegisterDto } from '#validators/auth'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { compose } from '@adonisjs/core/helpers'
 import hash from '@adonisjs/core/services/hash'
@@ -71,11 +72,11 @@ export default class User extends compose(BaseModel, AuthFinder) {
   })
   declare favoriteCategories: ManyToMany<typeof Category>
 
-  static async from(payload: { email: string; password: string }) {
+  static async from(dto: RegisterDto) {
     return await this.create({
-      ...payload,
+      ...dto,
       roleId: Roles.USER,
-      password: await hash.make(payload.password),
+      password: dto.password,
       nickname: this.generateRandomNickname(),
       otp: null,
       otpExpiryDate: null,

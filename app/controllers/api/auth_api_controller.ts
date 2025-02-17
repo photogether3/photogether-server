@@ -1,21 +1,44 @@
 import Collection from '#models/collection'
 import User from '#models/user'
-import { generateOtpValidator, registerValidator, verifyOtpValidator } from '#validators/auth'
+import UserToken from '#models/user_token'
+import { JwtService } from '#services/jwt_service'
+import { generateOtpValidator, LoginDto, loginValidator, registerValidator, verifyOtpValidator } from '#validators/auth'
+import { inject } from '@adonisjs/core'
 import { Exception } from '@adonisjs/core/exceptions'
 import type { HttpContext } from '@adonisjs/core/http'
 import mail from '@adonisjs/mail/services/main'
 
+@inject()
 export default class AuthApiController {
 
+  constructor(
+    private readonly jwtService: JwtService
+  ) { }
+
   async login({ request }: HttpContext) {
-    console.log('login')
-    console.log(request.body())
-    let user = await User.findBy('email', request.body().email)
+    const dto: LoginDto = await request.validateUsing(loginValidator)
+
+    let user = await User.findBy('email', dto.email)
     if (!user) {
-      throw new Exception('아이디 또는 비밀번호를 찾을 수 없습니다.', { status: 404 })
+      throw new Exception('아이디 또는 비밀번호를 찾을 수 없습니다.', { status: 404, code: 'E_USER_NOT_FOUND' })
     }
 
-    return 'ok'
+    const result = await user.verifyPassword(dto.password)
+    console.log(result)
+    if (!await user.verifyPassword(dto.password)) {
+      throw new Exception('아이디 또는 비밀번호를 찾을 수 없습니다.', { status: 404, code: 'E_USER_NOT_FOUND' })
+    }
+
+    if (!user.isEmailVerified) {
+      throw new Exception('인증되지 않은 계정입니다.', { status: 404, code: 'E_EMAIL_NOT_VERIFIED' })
+    }
+
+    const tokens = this.jwtService.generateTokens(user.id)
+    console.log(tokens)
+
+    await UserToken.from(user.id, tokens.refreshToken)
+
+    return tokens
   }
 
   async register({ request }: HttpContext) {

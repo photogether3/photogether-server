@@ -4,6 +4,7 @@ import { DateTime } from 'luxon'
 import User from './user.js'
 
 export default class UserToken extends BaseModel {
+
   @column({ isPrimary: true })
   declare id: number
 
@@ -27,4 +28,13 @@ export default class UserToken extends BaseModel {
 
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>
+
+  static async from(userId: number, refreshToken: string) {
+    return await this.create({
+      userId,
+      refreshToken,
+      expiryDate: DateTime.now().plus({ days: 7 }),
+      lastRefreshingDate: DateTime.now(),
+    })
+  }
 }
