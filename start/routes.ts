@@ -41,15 +41,15 @@ router.group(() => {
   router.group(() => {
     const CategoryApiController = () => import('#controllers/api/category_api_controller')
     router.get('', [CategoryApiController, 'index'])
+    router.get('/with-favorite-status', [CategoryApiController, 'indexWithFavorite']).middleware(middleware.auth())
     router.post('', [CategoryApiController, 'store'])
-    router.get('/with-favorite-status', [CategoryApiController, 'indexWithFavorite'])
     router.delete('/:categoryId', [CategoryApiController, 'destroy'])
   }).prefix('/v1/categories')
 
   router.group(() => {
     const FavoriteApiController = () => import('#controllers/api/favorite_api_controller')
     router.get('', [FavoriteApiController, 'index']).middleware(middleware.auth())
-    router.post('', [FavoriteApiController, 'storeOrUpdate']).middleware(middleware.auth())
+    router.put('', [FavoriteApiController, 'storeOrUpdate']).middleware(middleware.auth())
   }).prefix('/v1/favorites')
 
   router.group(() => {
