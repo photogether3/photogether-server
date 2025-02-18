@@ -37,4 +37,35 @@ router.group(() => {
     router.put('/me/reset', [UserApiController, 'reset']).middleware(middleware.auth())
     router.put('/me/withdraw', [UserApiController, 'withdraw']).middleware(middleware.auth())
   }).prefix('/v1/users')
+
+  router.group(() => {
+    const CategoryApiController = () => import('#controllers/api/category_api_controller')
+    router.get('', [CategoryApiController, 'index'])
+    router.post('', [CategoryApiController, 'store'])
+    router.get('/with-favorite-status', [CategoryApiController, 'indexWithFavorite'])
+    router.delete('/:categoryId', [CategoryApiController, 'destroy'])
+  }).prefix('/v1/categories')
+
+  router.group(() => {
+    const FavoriteApiController = () => import('#controllers/api/favorite_api_controller')
+    router.get('', [FavoriteApiController, 'index']).middleware(middleware.auth())
+    router.post('', [FavoriteApiController, 'storeOrUpdate']).middleware(middleware.auth())
+  }).prefix('/v1/favorites')
+
+  router.group(() => {
+    const CollectionApiController = () => import('#controllers/api/collection_api_controller')
+    router.get('', [CollectionApiController, 'index']).middleware(middleware.auth())
+    router.get('/:collectionId', [CollectionApiController, 'show']).middleware(middleware.auth())
+    router.post('', [CollectionApiController, 'store']).middleware(middleware.auth())
+    router.put('/:collectionId', [CollectionApiController, 'update']).middleware(middleware.auth())
+  }).prefix('/v1/collections')
+
+  router.group(() => {
+    const PostApiController = () => import('#controllers/api/post_api_controller')
+    router.get('', [PostApiController, 'index']).middleware(middleware.auth())
+    router.post('', [PostApiController, 'store']).middleware(middleware.auth())
+    router.put('/move', [PostApiController, 'updateWithMove']).middleware(middleware.auth())
+    router.put('/:collectionId', [PostApiController, 'update']).middleware(middleware.auth())
+    router.delete('/:collectionId', [PostApiController, 'destroys']).middleware(middleware.auth())
+  }).prefix('/v1/posts')
 }).prefix('/api')
