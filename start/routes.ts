@@ -32,10 +32,10 @@ router.group(() => {
     router.get('/emails/:email/duplicated', [UserApiController, 'isEmailTaken'])
     router.get('/me', [UserApiController, 'profile']).middleware(middleware.auth())
     router.put('/me', [UserApiController, 'updateProfile']).middleware(middleware.auth())
-    router.put('/password', [UserApiController, 'updatePasswordByOtp'])
-    router.put('/me/password', [UserApiController, 'updatePassword']).middleware(middleware.auth())
-    router.put('/me/reset', [UserApiController, 'reset']).middleware(middleware.auth())
-    router.put('/me/withdraw', [UserApiController, 'withdraw']).middleware(middleware.auth())
+    router.patch('/password', [UserApiController, 'updatePasswordByOtp'])
+    router.patch('/me/password', [UserApiController, 'updatePassword']).middleware(middleware.auth())
+    router.delete('/me/reset', [UserApiController, 'reset']).middleware(middleware.auth())
+    router.delete('/me/withdraw', [UserApiController, 'withdraw']).middleware(middleware.auth())
   }).prefix('/v1/users')
 
   router.group(() => {
