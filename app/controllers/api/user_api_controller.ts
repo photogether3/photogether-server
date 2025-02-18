@@ -22,7 +22,7 @@ export default class UserApiController {
     return new UserDto(user).toProfile()
   }
 
-  async updateProfile({ user, request }: HttpContext) {
+  async updateProfile({ request }: HttpContext) {
     const file = request.file('file')
     if (!file) {
       throw new Exception('파일을 찾을 수 없습니다.', { status: 404, code: 'E_FILE_NOT_FOUND' })
