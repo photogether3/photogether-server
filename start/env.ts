@@ -35,4 +35,12 @@ export default await Env.create(new URL('../', import.meta.url), {
   SMTP_PORT: Env.schema.string(),
   SMTP_USERNAME: Env.schema.string(),
   SMTP_PASSWORD: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
+  | Firebase Storage Configuration
+  |----------------------------------------------------------
+  */
+  FIREBASE_STORAGE_URL: Env.schema.string(),
+  FIREBASE_STORAGE_BUCKET: Env.schema.string(),
 })
