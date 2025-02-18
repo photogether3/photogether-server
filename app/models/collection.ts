@@ -1,4 +1,4 @@
-import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column, hasMany, scope } from '@adonisjs/lucid/orm'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
 import Category from './category.js'
@@ -42,6 +42,14 @@ export default class Collection extends BaseModel {
 
   @hasMany(() => Post)
   declare posts: HasMany<typeof Post>
+
+  public static my = scope((query, userId: number) => {
+    query.where('user_id', userId)
+  })
+
+  public static one = scope((query, collectionId: number) => {
+    query.where('id', collectionId)
+  })
 
   static async fromBases(userId: number) {
     return await this.createMany([
