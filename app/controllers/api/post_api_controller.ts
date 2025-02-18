@@ -1,10 +1,83 @@
+import Collection from '#models/collection';
+import { PaginationDto } from '#models/dto/pagination.dto';
+import Post from '#models/post';
+import PostMetadata from '#models/post_metadata';
+import { defaultPostIndexDto, PostIndexDto, postIndexValidator, PostStoreDto, postStoreValidator } from '#validators/post';
+import { Exception } from '@adonisjs/core/exceptions';
 import type { HttpContext } from '@adonisjs/core/http';
+import db from '@adonisjs/lucid/services/db';
 
 export default class PostApiController {
 
-  async index({ }: HttpContext) { }
+  async index({ user, request }: HttpContext) {
+    const requestData = {
+      ...defaultPostIndexDto,
+      ...request.all(),
+    }
+    const dto: PostIndexDto = await postIndexValidator.validate(requestData)
 
-  async store({ }: HttpContext) { }
+    await Collection.findOrFail(dto.collectionId)
+
+    const result = await Post.query()
+      .where('user_id', user.id)
+      .where('collection_id', dto.collectionId)
+      .orderBy(dto.sortBy, dto.sortOrder)
+      .preload('collection', (collection) => {
+        collection.preload('category')
+      })
+      .preload('metadatas')
+      .paginate(dto.page, dto.perPage)
+
+    const { meta, data } = result.serialize()
+    const items = data.map(x => {
+      return {
+        id: x.id,
+        title: x.title,
+        content: x.content,
+        imageUrl: x.imageUrl,
+        collectionId: x.collection.id,
+        collection: {
+          id: x.collection.id,
+          title: x.collection.title,
+        },
+        category: x.collection.category ?? null,
+        metadataList: x.metadatas.map((y: any) => ({
+          content: y.content,
+          isPublic: y.isPublic,
+        }))
+      }
+    })
+    return new PaginationDto(meta, items).toData()
+  }
+
+  async store({ user, request }: HttpContext) {
+    const dto: PostStoreDto = await request.validateUsing(postStoreValidator)
+
+    await Collection.findOrFail(dto.collectionId)
+
+    const tx = await db.transaction()
+    console.log(dto)
+    const post = await Post.create({
+      userId: user.id,
+      collectionId: dto.collectionId,
+      title: dto.title,
+      content: dto.content,
+      imageUrl: null
+    }, { client: tx })
+
+    let metadatas: { content: string, isPublic: boolean, postId: number }[] = []
+    try {
+      metadatas = JSON.parse(dto.metadataStringify)
+      metadatas = metadatas.map(x => ({ ...x, postId: post.id }))
+    } catch (err) {
+      throw new Exception('Invalid metadata stringify', { code: 'E_INVALID_METADATA_STRINGIFY', status: 400 })
+    }
+    console.log(metadatas)
+    await PostMetadata.createMany(metadatas, { client: tx })
+
+    console.log('저장 완료!!')
+    await tx.commit()
+  }
 
   async update({ }: HttpContext) { }
 
