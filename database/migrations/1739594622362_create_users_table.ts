@@ -14,7 +14,7 @@ export default class extends BaseSchema {
       table.string('password', 200).notNullable()
       table.string('otp', 6).nullable()
       table.timestamp('otp_expiry_date').nullable()
-      table.string('avatar_url', 255).nullable()
+      table.string('image_url', 255).nullable()
 
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()

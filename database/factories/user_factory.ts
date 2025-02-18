@@ -13,7 +13,7 @@ export const UserFactory = factory
       email: faker.internet.email(),
       isEmailVerified: true,
       password: faker.internet.password(),
-      avatarUrl: faker.image.avatar(),
+      imageUrl: faker.image.avatar(),
       otp: null
     }
   })

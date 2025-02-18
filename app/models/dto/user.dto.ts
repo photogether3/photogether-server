@@ -11,7 +11,7 @@ export class UserDto {
       nickname: this.user.nickname,
       bio: this.user.bio,
       email: this.user.email,
-      imageUrl: this.user.avatarUrl,
+      imageUrl: this.user.imageUrl,
       createdAt: this.user.createdAt,
       updatedAt: this.user.updatedAt,
     }

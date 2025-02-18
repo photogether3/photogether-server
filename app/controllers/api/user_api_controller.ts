@@ -15,6 +15,11 @@ export default class UserApiController {
     return new UserDto(user).toProfile()
   }
 
+  async updateProfile({ user, request }: HttpContext) {
+    console.log(request.all())
+    console.log(request.file('file'))
+  }
+
   async updatePasswordByOtp({ request }: HttpContext) { }
 
   async updatePassword({ request }: HttpContext) { }

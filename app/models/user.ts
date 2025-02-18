@@ -43,7 +43,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare otp: string | null
 
   @column()
-  declare avatarUrl: string | null
+  declare imageUrl: string | null
 
   @column.dateTime()
   declare otpExpiryDate: DateTime | null

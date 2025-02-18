@@ -7,7 +7,7 @@ export const PostFactory = factory
     return {
       title: faker.lorem.words(10),
       content: faker.lorem.paragraph(),
-      posterUrl: faker.image.url()
+      imageUrl: faker.image.url()
     }
   })
   .relation('metadatas', () => PostMetadataFactory)

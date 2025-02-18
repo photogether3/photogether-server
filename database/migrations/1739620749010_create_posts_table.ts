@@ -10,7 +10,7 @@ export default class extends BaseSchema {
       table.integer('collection_id').unsigned().references('collections.id').notNullable()
       table.string('title', 50).notNullable()
       table.string('content', 100).notNullable()
-      table.string('poster_url', 255).nullable()
+      table.string('image_url', 255).nullable()
       table.timestamp('created_at')
       table.timestamp('updated_at')
     })

@@ -30,18 +30,11 @@ router.group(() => {
   router.group(() => {
     const UserApiController = () => import('#controllers/api/user_api_controller')
     router.get('/emails/:email/duplicated', [UserApiController, 'isEmailTaken'])
-    router
-      .get('/me', [UserApiController, 'profile'])
-      .middleware(middleware.auth())
+    router.get('/me', [UserApiController, 'profile']).middleware(middleware.auth())
+    router.put('/me', [UserApiController, 'updateProfile']).middleware(middleware.auth())
     router.put('/password', [UserApiController, 'updatePasswordByOtp'])
-    router
-      .put('/me/password', [UserApiController, 'updatePassword'])
-      .middleware(middleware.auth())
-    router
-      .put('/me/reset', [UserApiController, 'reset'])
-      .middleware(middleware.auth())
-    router
-      .put('/me/withdraw', [UserApiController, 'withdraw'])
-      .middleware(middleware.auth())
+    router.put('/me/password', [UserApiController, 'updatePassword']).middleware(middleware.auth())
+    router.put('/me/reset', [UserApiController, 'reset']).middleware(middleware.auth())
+    router.put('/me/withdraw', [UserApiController, 'withdraw']).middleware(middleware.auth())
   }).prefix('/v1/users')
 }).prefix('/api')
