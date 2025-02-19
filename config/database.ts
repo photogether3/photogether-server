@@ -11,7 +11,7 @@ const dbConfig = defineConfig({
         port: env.get('DB_PORT'),
         database: env.get('DB_NAME'),
         user: env.get('DB_USERNAME'),
-        password: env.get('DB_PASSWORD'),
+        password: env.get('DB_PASSWORD')
       },
       useNullAsDefault: true,
       migrations: {
