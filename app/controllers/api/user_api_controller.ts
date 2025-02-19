@@ -1,10 +1,9 @@
-import { firebaseBucket, firebaseStorage } from '#config/firebase'
 import Category from '#models/category'
 import { UserDto } from '#models/dto/user.dto'
 import Post from '#models/post'
 import User from '#models/user'
 import UserToken from '#models/user_token'
-import { emailTakenValidator, UpdatePasswordByOtpDto, updatePasswordByOtpValidator, UpdatePasswordDto, updatePasswordValidator, UserDataResetDto, WithdrawDto, withdrawValidator } from '#validators/user'
+import { emailTakenValidator, UpdatePasswordByOtpDto, updatePasswordByOtpValidator, UpdatePasswordDto, updatePasswordValidator, UpdateUserDto, updateUserValidator, UserDataResetDto, WithdrawDto, withdrawValidator } from '#validators/user'
 import { Exception } from '@adonisjs/core/exceptions'
 import type { HttpContext } from '@adonisjs/core/http'
 import db from '@adonisjs/lucid/services/db'
@@ -22,22 +21,18 @@ export default class UserApiController {
     return new UserDto(user).toProfile()
   }
 
-  async updateProfile({ request }: HttpContext) {
-    const file = request.file('file')
-    if (!file) {
-      throw new Exception('파일을 찾을 수 없습니다.', { status: 404, code: 'E_FILE_NOT_FOUND' })
-    }
-    request.multipart.onFile('file', {}, async (part) => {
-      const bucket = firebaseStorage.bucket(firebaseBucket)
+  async updateProfile({ request, user, uploadedFileUrl }: HttpContext) {
+    const dto: UpdateUserDto = await request.validateUsing(updateUserValidator)
+    const categoryIds: number[] = JSON.parse(dto.categoryIds)
+    console.log(categoryIds)
 
-      console.log('버킷!!')
+    user = await user.merge({
+      nickname: dto.nickname,
+      bio: dto.bio,
+      imageUrl: uploadedFileUrl
+    }).save()
 
-      const firebaseFile = bucket.file(part.filename)
-      console.log('vkdldjqpdltm 파일!!')
-      await firebaseFile.save(part)
-      console.log('세이브 됨')
-      await firebaseFile.makePublic()
-    })
+    return new UserDto(user).toProfile()
   }
 
   async updatePasswordByOtp({ request }: HttpContext) {

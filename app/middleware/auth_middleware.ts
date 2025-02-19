@@ -4,13 +4,16 @@ import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import jwt from 'jsonwebtoken'
 
+declare module '@adonisjs/core/http' {
+  interface HttpContext {
+    user: User
+  }
+}
+
 export default class AuthMiddleware {
   async handle(ctx: HttpContext, next: NextFn) {
-    /**
-     * Middleware logic goes here (before the next call)
-     */
-    console.log(ctx.request.headers())
-
+    console.log('=========AuthMiddleware==========')
+    
     const headers = ctx.request.headers()
 
     const authorization = headers.authorization
