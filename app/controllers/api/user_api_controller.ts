@@ -79,6 +79,7 @@ export default class UserApiController {
     await Category.query({ client: trx }).where('user_id', user.id).delete()
     await Post.query({ client: trx }).where('user_id', user.id).delete()
     await UserToken.query({ client: trx }).where('user_id', user.id).delete()
+    await trx.commit()
   }
 
   async withdraw({ user, request }: HttpContext) {

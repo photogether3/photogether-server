@@ -1,12 +1,16 @@
-import Collection from '#models/collection'
+import Collection, { CollectionTypes } from '#models/collection'
+import { Roles } from '#models/role'
 import User from '#models/user'
 import UserToken from '#models/user_token'
 import { JwtService } from '#services/jwt_service'
-import { generateOtpValidator, LoginDto, loginValidator, refreshValidator, registerValidator, verifyOtpValidator } from '#validators/auth'
+import { UtilService } from '#services/util_service'
+import { generateOtpValidator, LoginDto, loginValidator, refreshValidator, RegisterDto, registerValidator, verifyOtpValidator } from '#validators/auth'
 import { inject } from '@adonisjs/core'
 import { Exception } from '@adonisjs/core/exceptions'
 import type { HttpContext } from '@adonisjs/core/http'
+import db from '@adonisjs/lucid/services/db'
 import mail from '@adonisjs/mail/services/main'
+import { DateTime } from 'luxon'
 
 @inject()
 export default class AuthApiController {
@@ -42,17 +46,43 @@ export default class AuthApiController {
 
   async register({ request }: HttpContext) {
     // 유효성 검사
-    const payload = await request.validateUsing(registerValidator)
+    const dto: RegisterDto = await request.validateUsing(registerValidator)
 
     // 이미 존재하는 이메일인지 확인
-    let user = await User.findBy('email', payload.email)
+    let user = await User.findBy('email', dto.email)
     if (user) {
       throw new Exception('이미 존재하는 이메일입니다.', { status: 409, code: 'E_DUPLICATE_EMAIL' })
     }
 
     // 사용자 생성, 사용자 기본 컬렉션 생성
-    user = await User.from(payload)
-    await Collection.fromBases(user.id)
+    const tx = await db.transaction()
+
+    user = await User.create({
+      ...dto,
+      roleId: Roles.USER,
+      password: dto.password,
+      nickname: UtilService.generateRandomNickname(),
+      otp: null,
+      otpExpiryDate: null,
+      isEmailVerified: false,
+    }, { client: tx })
+
+    await Collection.createMany([
+      {
+        userId: user.id,
+        categoryId: null,
+        type: CollectionTypes.UNCATEGORIZED,
+        title: '미분류'
+      },
+      {
+        userId: user.id,
+        categoryId: null,
+        type: CollectionTypes.TRASH,
+        title: '휴지통'
+      }
+    ], { client: tx })
+
+    await tx.commit()
   }
 
   async generateOtp({ request }: HttpContext) {
@@ -66,8 +96,10 @@ export default class AuthApiController {
     }
 
     // OTP 생성 및 저장
-    user = await user.withGenerateOtp()
-    console.log(user.serialize())
+    await user.merge({
+      otp: UtilService.generateOTP(),
+      otpExpiryDate: DateTime.now().plus({ minutes: 5 })
+    }).save()
 
     // 이메일 전송
     await mail.send((message) => {
@@ -95,7 +127,11 @@ export default class AuthApiController {
     }
 
     // 이메일 인증 완료
-    user = await user.withVerifiedEmail()
+    await user.merge({
+      isEmailVerified: true,
+      otp: null,
+      otpExpiryDate: null,
+    }).save()
 
     // 토큰 발급
     const tokens = this.jwtService.generateTokens(user.id)
@@ -106,10 +142,10 @@ export default class AuthApiController {
   async refresh({ request }: HttpContext) {
     // 유효성 검사
     let refreshTokenString = request.headers()['x-refresh-token'] as string
-    const refreshToken = await refreshValidator.validate({ refreshToken: refreshTokenString })
+    const { refreshToken } = await refreshValidator.validate({ refreshToken: refreshTokenString })
 
     //  토큰 확인
-    const userToken = await UserToken.findBy('refreshToken', refreshToken.refreshToken)
+    const userToken = await UserToken.findBy('refreshToken', refreshToken)
     if (!userToken) {
       throw new Exception('토큰이 유효하지 않습니다.', { status: 401, code: 'E_INVALID_TOKEN' })
     }
@@ -121,7 +157,12 @@ export default class AuthApiController {
 
     // 토큰 발급
     const tokens = this.jwtService.generateTokens(userToken.userId)
-    await userToken.withUpdate(tokens.refreshToken)
+    
+    await userToken.merge({
+      refreshToken,
+      lastRefreshingDate: DateTime.now(),
+    }).save()
+
     return tokens
   }
 

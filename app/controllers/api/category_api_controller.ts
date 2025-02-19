@@ -13,8 +13,10 @@ export default class CategoryApiController {
     return results.map(x => new CategoryDto(x).toWithFavorite(user.id))
   }
 
+  /** @deprecated */
   async store({ }: HttpContext) { }
 
+  /** @deprecated */
   async destroy({ }: HttpContext) { }
 
 }

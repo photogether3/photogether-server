@@ -50,21 +50,4 @@ export default class Collection extends BaseModel {
   public static one = scope((query, collectionId: number) => {
     query.where('id', collectionId)
   })
-
-  static async fromBases(userId: number) {
-    return await this.createMany([
-      {
-        userId,
-        categoryId: null,
-        type: CollectionTypes.UNCATEGORIZED,
-        title: '미분류'
-      },
-      {
-        userId,
-        categoryId: null,
-        type: CollectionTypes.TRASH,
-        title: '휴지통'
-      }
-    ])
-  }
 }

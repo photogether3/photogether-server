@@ -1,4 +1,3 @@
-import { RegisterDto } from '#validators/auth'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { compose } from '@adonisjs/core/helpers'
 import hash from '@adonisjs/core/services/hash'
@@ -72,59 +71,14 @@ export default class User extends compose(BaseModel, AuthFinder) {
   })
   declare favoriteCategories: ManyToMany<typeof Category>
 
-  static async from(dto: RegisterDto) {
-    return await this.create({
-      ...dto,
-      roleId: Roles.USER,
-      password: dto.password,
-      nickname: this.generateRandomNickname(),
-      otp: null,
-      otpExpiryDate: null,
-      isEmailVerified: false,
-    })
-  }
-
   verifyOtp(otp: string) {
     console.log(this.otp, otp)
     return this.otp !== otp ? false : true
-  }
-
-  async withGenerateOtp() {
-    return await User.updateOrCreate({ id: this.id }, {
-      otp: User.generateOTP(),
-      otpExpiryDate: DateTime.now().plus({ minutes: 5 }),
-    })
-  }
-
-  async withVerifiedEmail() {
-    return await User.updateOrCreate({ id: this.id }, {
-      isEmailVerified: true,
-      otp: null,
-      otpExpiryDate: null,
-    })
   }
 
   async withUpdatePassword(password: string) {
     return await User.updateOrCreate({ id: this.id }, {
       password
     })
-  }
-
-  private static generateRandomNickname(): string {
-    const prefixes = [
-      "멋진", "든든한", "귀여운", "강력한", "재빠른", "화려한", "용감한", "현명한", "활기찬", "유쾌한",
-    ];
-    const suffixes = [
-      "고래밥", "사자", "호랑이", "독수리", "고양이", "강아지", "여우", "팬더", "토끼", "공룡",
-    ];
-
-    const randomPrefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-    const randomSuffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-
-    return `${randomPrefix} ${randomSuffix}`;
-  }
-
-  private static generateOTP() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
   }
 }

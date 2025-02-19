@@ -1,19 +1,26 @@
 import Category from '#models/category';
 import Collection from '#models/collection';
 import { PaginationDto } from '#models/dto/pagination.dto';
-import { ShowCollectionDto, showCollectionValidator, StoreCollectionDto, storeCollectionValidator, UpdateCollectionDto, updateCollectionValidator } from '#validators/collection';
+import { defaultIndexCollectionDto, IndexCollectionDto, indexCollectionValidator, ShowCollectionDto, showCollectionValidator, StoreCollectionDto, storeCollectionValidator, UpdateCollectionDto, updateCollectionValidator } from '#validators/collection';
 import { Exception } from '@adonisjs/core/exceptions';
 import type { HttpContext } from '@adonisjs/core/http';
 
 export default class CollectionApiController {
 
-  async index({ user }: HttpContext) {
+  async index({ user, request }: HttpContext) {
+    const { page, perPage, sortBy, sortOrder }: IndexCollectionDto = await indexCollectionValidator.validate({
+      ...defaultIndexCollectionDto,
+      ...request.all()
+    })
+
     const collections = await Collection
       .query()
       .apply(scope => scope.my(user.id))
+      .orderBy(sortBy, sortOrder)
       .preload('category')
-      .paginate(1, 10)
+      .paginate(page, perPage)
     const { meta, data } = collections.serialize()
+
     return new PaginationDto(meta, data).toData()
   }
 
