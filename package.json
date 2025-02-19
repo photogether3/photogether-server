@@ -1,6 +1,6 @@
 {
   "name": "photogether-server",
-  "version": "0.0.0",
+  "version": "0.8.1",
   "private": true,
   "type": "module",
   "license": "UNLICENSED",
@@ -67,6 +67,7 @@
     "firebase-admin": "^13.1.0",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.5.0",
+    "pg": "^8.13.3",
     "reflect-metadata": "^0.2.2"
   },
   "hotHook": {
