@@ -3,7 +3,6 @@ import { PaginationDto } from '#models/dto/pagination.dto';
 import Post from '#models/post';
 import PostMetadata from '#models/post_metadata';
 import { defaultPostIndexDto, PostIndexDto, postIndexValidator, PostStoreDto, postStoreValidator } from '#validators/post';
-import { Exception } from '@adonisjs/core/exceptions';
 import type { HttpContext } from '@adonisjs/core/http';
 import db from '@adonisjs/lucid/services/db';
 
@@ -50,33 +49,23 @@ export default class PostApiController {
     return new PaginationDto(meta, items).toData()
   }
 
-  async store({ user, request }: HttpContext) {
+  async store({ user, request, uploadedFileUrl }: HttpContext) {
     const dto: PostStoreDto = await request.validateUsing(postStoreValidator)
 
     await Collection.findOrFail(dto.collectionId)
 
-    const tx = await db.transaction()
-    console.log(dto)
+    const trx = await db.transaction()
     const post = await Post.create({
       userId: user.id,
       collectionId: dto.collectionId,
       title: dto.title,
       content: dto.content,
-      imageUrl: null
-    }, { client: tx })
+      imageUrl: uploadedFileUrl
+    }, { client: trx })
 
-    let metadatas: { content: string, isPublic: boolean, postId: number }[] = []
-    try {
-      metadatas = JSON.parse(dto.metadataStringify)
-      metadatas = metadatas.map(x => ({ ...x, postId: post.id }))
-    } catch (err) {
-      throw new Exception('Invalid metadata stringify', { code: 'E_INVALID_METADATA_STRINGIFY', status: 400 })
-    }
-    console.log(metadatas)
-    await PostMetadata.createMany(metadatas, { client: tx })
+    await PostMetadata.creates(post.id, dto.metadataStringify, trx)
 
-    console.log('저장 완료!!')
-    await tx.commit()
+    await trx.commit()
   }
 
   async update({ }: HttpContext) { }

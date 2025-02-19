@@ -65,7 +65,9 @@ router.group(() => {
   router.group(() => {
     const PostApiController = () => import('#controllers/api/post_api_controller')
     router.get('', [PostApiController, 'index']).middleware(middleware.auth())
-    router.post('', [PostApiController, 'store']).middleware(middleware.auth())
+    router.post('', [PostApiController, 'store'])
+      .middleware(middleware.auth())
+      .middleware(middleware.drive())
     router.put('/move', [PostApiController, 'updateWithMove']).middleware(middleware.auth())
     router.put('/:collectionId', [PostApiController, 'update']).middleware(middleware.auth())
     router.delete('/:collectionId', [PostApiController, 'destroys']).middleware(middleware.auth())
