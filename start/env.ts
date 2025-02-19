@@ -43,18 +43,9 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
-  | Firebase Storage Configuration
-  |----------------------------------------------------------
-  */
-  FIREBASE_STORAGE_URL: Env.schema.string(),
-  FIREBASE_STORAGE_BUCKET: Env.schema.string(),
-
-  /*
-  |----------------------------------------------------------
   | Variables for configuring the drive package
   |----------------------------------------------------------
   */
   DRIVE_DISK: Env.schema.enum(['gcs'] as const),
-  GCS_KEY: Env.schema.string(),
   GCS_BUCKET: Env.schema.string()
 })

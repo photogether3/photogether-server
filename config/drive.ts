@@ -1,5 +1,6 @@
-import env from '#start/env'
-import { defineConfig, services } from '@adonisjs/drive'
+import env from '#start/env';
+import { defineConfig, services } from '@adonisjs/drive';
+import serviceAccount from '../firebase-admin-sdk.json' assert { type: "json" };
 
 const driveConfig = defineConfig({
   default: env.get('DRIVE_DISK'),
@@ -10,7 +11,7 @@ const driveConfig = defineConfig({
    */
   services: { 
     gcs: services.gcs({
-      credentials: env.get('GCS_KEY'),
+      credentials: serviceAccount,
       bucket: env.get('GCS_BUCKET'),
       visibility: 'public',
     }),
