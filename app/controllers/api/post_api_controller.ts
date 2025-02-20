@@ -1,9 +1,9 @@
-import Collection from '#models/collection';
-import { PaginationDto } from '#models/vm/pagination.vm';
-import { PostVmFactory } from '#models/vm/post.vm';
+import Collection, { CollectionTypes } from '#models/collection';
 import Post from '#models/post';
 import PostMetadata from '#models/post_metadata';
-import { defaultPostIndexDto, parsePostMetadata, PostIndexDto, postIndexValidator, PostStoreDto, postStoreValidator, UpdatePostDto, updatePostValidator } from '#validators/post';
+import { PaginationDto } from '#models/vm/pagination.vm';
+import { PostVmFactory } from '#models/vm/post.vm';
+import { defaultPostIndexDto, DestroyPostDto, destroyPostsValidator, MovePostsDto, movePostsValidator, parsePostMetadata, PostIndexDto, postIndexValidator, PostStoreDto, postStoreValidator, UpdatePostDto, updatePostValidator } from '#validators/post';
 import { Exception } from '@adonisjs/core/exceptions';
 import type { HttpContext } from '@adonisjs/core/http';
 import db from '@adonisjs/lucid/services/db';
@@ -101,7 +101,36 @@ export default class PostApiController {
     await trx.commit()
   }
 
-  async updateWithMove({ }: HttpContext) { }
+  async updateWithMove({ user, request }: HttpContext) {
+    const dto: MovePostsDto = await request.validateUsing(movePostsValidator)
 
-  async destroys({ }: HttpContext) { }
+    await Collection.findByOrFail({
+      id: dto.collectionId,
+      userId: user.id,
+    })
+
+    await Post.query()
+      .where('user_id', user.id)
+      .andWhereIn('id', dto.postIds)
+      .update({
+        collectionId: dto.collectionId,
+      })
+  }
+
+  async destroys({ user, request }: HttpContext) {
+
+    const dto: DestroyPostDto = await request.validateUsing(destroyPostsValidator)
+
+    const collection = await Collection.findByOrFail({
+      userId: user.id,
+      type: CollectionTypes.TRASH
+    })
+
+    await Post.query()
+      .where('user_id', user.id)
+      .andWhereIn('id', dto.postIds)
+      .update({
+        collectionId: collection.id,
+      })
+  }
 }

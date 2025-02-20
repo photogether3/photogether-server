@@ -50,6 +50,25 @@ export const updatePostValidator = vine.compile(
 )
 export type UpdatePostDto = Infer<typeof updatePostValidator>
 
+export const movePostsValidator = vine.compile(
+  vine.object({
+    collectionId: vine.number(),
+    postIds: vine.array(
+      vine.number(),
+    )
+  })
+)
+export type MovePostsDto = Infer<typeof movePostsValidator>
+
+export const destroyPostsValidator = vine.compile(
+  vine.object({
+    postIds: vine.array(
+      vine.number(),
+    )
+  })
+)
+export type DestroyPostDto = Infer<typeof destroyPostsValidator>
+
 export const parsePostMetadata = (metadataStringify: string) => {
   let metadatas: { content: string, isPublic: boolean, postId: number }[] = []
   try {
