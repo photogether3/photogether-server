@@ -20,7 +20,7 @@ export function userApiRoutes() {
     router.get('/me', [UserApiController, 'profile']).middleware(middleware.auth())
     router.put('/me', [UserApiController, 'updateProfile'])
       .middleware(middleware.auth())
-      .middleware(middleware.drive())
+      .middleware(middleware.drive({ skip: true }))
     router.patch('/password', [UserApiController, 'updatePasswordByOtp'])
     router.patch('/me/password', [UserApiController, 'updatePassword']).middleware(middleware.auth())
     router.delete('/me/reset', [UserApiController, 'reset']).middleware(middleware.auth())

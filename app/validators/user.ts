@@ -10,7 +10,7 @@ export const emailTakenValidator = vine.compile(
 export const updateUserValidator = vine.compile(
   vine.object({
     nickname: vine.string().minLength(2).maxLength(12),
-    bio: vine.string().minLength(2).maxLength(50),
+    bio: vine.string().optional(),
     categoryIds: vine.string(),
   })
 )

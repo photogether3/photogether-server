@@ -1,8 +1,8 @@
 import Category from '#models/category'
-import { UserVmFactory } from '#models/vm/user.vm'
 import Post from '#models/post'
 import User from '#models/user'
 import UserToken from '#models/user_token'
+import { UserVmFactory } from '#models/vm/user.vm'
 import { emailTakenValidator, UpdatePasswordByOtpDto, updatePasswordByOtpValidator, UpdatePasswordDto, updatePasswordValidator, UpdateUserDto, updateUserValidator, UserDataResetDto, WithdrawDto, withdrawValidator } from '#validators/user'
 import { Exception } from '@adonisjs/core/exceptions'
 import type { HttpContext } from '@adonisjs/core/http'
@@ -23,12 +23,10 @@ export default class UserApiController {
 
   async updateProfile({ request, user, uploadedFileUrl }: HttpContext) {
     const dto: UpdateUserDto = await request.validateUsing(updateUserValidator)
-    const categoryIds: number[] = JSON.parse(dto.categoryIds)
-    console.log(categoryIds)
 
     user = await user.merge({
       nickname: dto.nickname,
-      bio: dto.bio,
+      bio: dto.bio ?? null,
       imageUrl: uploadedFileUrl
     }).save()
 

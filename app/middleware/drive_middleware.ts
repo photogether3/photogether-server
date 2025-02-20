@@ -7,18 +7,23 @@ import { DateTime } from "luxon";
 
 declare module '@adonisjs/core/http' {
   interface HttpContext {
-    uploadedFileUrl: string
+    uploadedFileUrl: string | null
   }
 }
 
 export default class DriveMiddleware {
-  async handle(ctx: HttpContext, next: NextFn) {
+  async handle(ctx: HttpContext, next: NextFn, option: { skip?: boolean } = { skip: false }) {
     console.log('=========DriveMiddleware==========')
 
     const image = ctx.request.file('file', {
       size: '2mb',
       extnames: ['jpeg', 'jpg', 'png'],
     })
+
+    if (!image && option.skip) {
+      ctx.uploadedFileUrl = null
+      return await next()
+    }
 
     if (!image) {
       throw new Exception('Image is required', {
