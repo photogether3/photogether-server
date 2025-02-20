@@ -1,6 +1,17 @@
 import User from "#models/user";
+import { DateTime } from "luxon";
 
-export class UserDto {
+export type UserProfileVm = {
+  id: number;
+  nickname: string;
+  bio: string;
+  email: string;
+  imageUrl: string;
+  createdAt: DateTime<boolean>;
+  updatedAt: DateTime<boolean>;
+}
+
+export class UserVmFactory {
   constructor(
     public readonly user: User
   ) { }
@@ -14,6 +25,6 @@ export class UserDto {
       imageUrl: this.user.imageUrl,
       createdAt: this.user.createdAt,
       updatedAt: this.user.updatedAt,
-    }
+    } as UserProfileVm
   }
 }

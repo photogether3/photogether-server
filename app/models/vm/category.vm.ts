@@ -1,6 +1,12 @@
 import Category from "#models/category";
 
-export class CategoryDto {
+export type CategoryWithFavoriteVm = {
+  id: number
+  name: string
+  isFavorite: boolean
+}
+
+export class CategoryVmFactory {
   constructor(
     private readonly category: Category
   ) { }
@@ -13,6 +19,6 @@ export class CategoryDto {
       id: this.category.id,
       name: this.category.name,
       isFavorite,
-    }
+    } as CategoryWithFavoriteVm
   }
 }

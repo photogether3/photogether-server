@@ -1,6 +1,6 @@
 import Category from '#models/category';
 import Collection from '#models/collection';
-import { PaginationDto } from '#models/dto/pagination.dto';
+import { PaginationDto } from '#models/vm/pagination.vm';
 import { defaultIndexCollectionDto, IndexCollectionDto, indexCollectionValidator, ShowCollectionDto, showCollectionValidator, StoreCollectionDto, storeCollectionValidator, UpdateCollectionDto, updateCollectionValidator } from '#validators/collection';
 import { Exception } from '@adonisjs/core/exceptions';
 import type { HttpContext } from '@adonisjs/core/http';

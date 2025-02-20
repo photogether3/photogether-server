@@ -1,5 +1,5 @@
 import Category from '#models/category'
-import { UserDto } from '#models/dto/user.dto'
+import { UserVmFactory } from '#models/vm/user.vm'
 import Post from '#models/post'
 import User from '#models/user'
 import UserToken from '#models/user_token'
@@ -18,7 +18,7 @@ export default class UserApiController {
   }
 
   async profile({ user }: HttpContext) {
-    return new UserDto(user).toProfile()
+    return new UserVmFactory(user).toProfile()
   }
 
   async updateProfile({ request, user, uploadedFileUrl }: HttpContext) {
@@ -32,7 +32,7 @@ export default class UserApiController {
       imageUrl: uploadedFileUrl
     }).save()
 
-    return new UserDto(user).toProfile()
+    return new UserVmFactory(user).toProfile()
   }
 
   async updatePasswordByOtp({ request }: HttpContext) {

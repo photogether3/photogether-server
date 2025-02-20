@@ -1,8 +1,10 @@
 import Collection from '#models/collection';
-import { PaginationDto } from '#models/dto/pagination.dto';
+import { PaginationDto } from '#models/vm/pagination.vm';
+import { PostVmFactory } from '#models/vm/post.vm';
 import Post from '#models/post';
 import PostMetadata from '#models/post_metadata';
-import { defaultPostIndexDto, PostIndexDto, postIndexValidator, PostStoreDto, postStoreValidator } from '#validators/post';
+import { defaultPostIndexDto, parsePostMetadata, PostIndexDto, postIndexValidator, PostStoreDto, postStoreValidator, UpdatePostDto, updatePostValidator } from '#validators/post';
+import { Exception } from '@adonisjs/core/exceptions';
 import type { HttpContext } from '@adonisjs/core/http';
 import db from '@adonisjs/lucid/services/db';
 
@@ -28,29 +30,29 @@ export default class PostApiController {
       .paginate(dto.page, dto.perPage)
 
     const { meta, data } = result.serialize()
-    const items = data.map(x => {
-      return {
-        id: x.id,
-        title: x.title,
-        content: x.content,
-        imageUrl: x.imageUrl,
-        collectionId: x.collection.id,
-        collection: {
-          id: x.collection.id,
-          title: x.collection.title,
-        },
-        category: x.collection.category ?? null,
-        metadataList: x.metadatas.map((y: any) => ({
-          content: y.content,
-          isPublic: y.isPublic,
-        }))
-      }
-    })
+    const posts = data as Post[]
+    const items = posts.map(x => new PostVmFactory(x).toDetail())
     return new PaginationDto(meta, items).toData()
   }
 
+  async show({ user, request }: HttpContext) {
+    const post = await Post.findByOrFail({
+      userId: user.id,
+      id: request.param('postId'),
+    })
+    await post.load('collection', (collection) => {
+      collection.preload('category')
+    })
+    await post.load('metadatas')
+    return new PostVmFactory(post).toDetail()
+  }
+
   async store({ user, request, uploadedFileUrl }: HttpContext) {
-    const dto: PostStoreDto = await request.validateUsing(postStoreValidator)
+    const metadataList = parsePostMetadata(request.body()?.metadataStringify)
+    const dto: PostStoreDto = await postStoreValidator.validate({
+      ...request.all(),
+      metadataList
+    })
 
     await Collection.findOrFail(dto.collectionId)
 
@@ -63,12 +65,41 @@ export default class PostApiController {
       imageUrl: uploadedFileUrl
     }, { client: trx })
 
-    await PostMetadata.creates(post.id, dto.metadataStringify, trx)
+    await PostMetadata
+      .creates(post.id, dto.metadataList, trx)
+
+    await trx.commit()
+
+    return post
+  }
+
+  async update({ user, request }: HttpContext) {
+    const dto: UpdatePostDto = await updatePostValidator.validate(request.all())
+
+    const post = await Post.query()
+      .where('id', dto.postId)
+      .andWhere('user_id', user.id)
+      .first()
+
+    if (!post) throw new Exception('Post not found', {
+      status: 404,
+      code: 'E_NOT_FOUND',
+    })
+
+    const trx = await db.transaction()
+
+    await post.merge({
+      title: dto.title,
+      content: dto.content,
+    })
+      .useTransaction(trx)
+      .save()
+
+    await PostMetadata
+      .creates(post.id, dto.metadataList, trx)
 
     await trx.commit()
   }
-
-  async update({ }: HttpContext) { }
 
   async updateWithMove({ }: HttpContext) { }
 

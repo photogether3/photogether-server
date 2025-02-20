@@ -1,9 +1,13 @@
-import { Exception } from '@adonisjs/core/exceptions'
 import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
 import { TransactionClientContract } from '@adonisjs/lucid/types/database'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
 import Post from './post.js'
+
+export type UpdateOrCreatePostMetadataDto = {
+  content: string
+  isPublic: boolean
+}
 
 export default class PostMetadata extends BaseModel {
   @column({ isPrimary: true })
@@ -30,15 +34,20 @@ export default class PostMetadata extends BaseModel {
   @belongsTo(() => Post)
   declare post: BelongsTo<typeof Post>
 
-  static async creates(postId: number, metadataStringify: string, trx: TransactionClientContract) {
-    let metadatas: { content: string, isPublic: boolean, postId: number }[] = []
-    try {
-      metadatas = JSON.parse(metadataStringify)
-      metadatas = metadatas.map(x => ({ ...x, postId }))
-    } catch (err) {
-      throw new Exception('Invalid metadata stringify', { code: 'E_INVALID_METADATA_STRINGIFY', status: 400 })
+  static async creates(postId: number, metadatas: UpdateOrCreatePostMetadataDto[], trx: TransactionClientContract) {
+    const postMetadatas = await PostMetadata
+      .query()
+      .where('post_id', postId)
+
+    if (postMetadatas.length > 0) {
+      await PostMetadata
+        .query()
+        .where('post_id', postId)
+        .delete()
     }
-    await PostMetadata.createMany(metadatas, { client: trx })
-    return this
+
+    const createMetadata = metadatas.map(x => ({ ...x, postId }))
+
+    await PostMetadata.createMany(createMetadata, { client: trx })
   }
 }

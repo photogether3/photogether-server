@@ -1,0 +1,1 @@
+export * from '../../a.model.js'
