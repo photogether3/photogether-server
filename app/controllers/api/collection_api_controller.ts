@@ -1,6 +1,6 @@
 import Category from '#models/category';
 import Collection from '#models/collection';
-import { PaginationDto } from '#models/vm/pagination.vm';
+import { CollectionVmFactory } from '#models/vm/collection.vm';
 import { defaultIndexCollectionDto, IndexCollectionDto, indexCollectionValidator, ShowCollectionDto, showCollectionValidator, StoreCollectionDto, storeCollectionValidator, UpdateCollectionDto, updateCollectionValidator } from '#validators/collection';
 import { Exception } from '@adonisjs/core/exceptions';
 import type { HttpContext } from '@adonisjs/core/http';
@@ -18,10 +18,13 @@ export default class CollectionApiController {
       .apply(scope => scope.my(user.id))
       .orderBy(sortBy, sortOrder)
       .preload('category')
+      .withCount('posts')
+      .preload('posts', (query) => {
+        query.orderBy('id', 'desc').limit(3)
+      })
       .paginate(page, perPage)
-    const { meta, data } = collections.serialize()
 
-    return new PaginationDto(meta, data).toData()
+    return CollectionVmFactory.makeWithPaginatedData(collections)
   }
 
   async show({ user, request }: HttpContext) {
@@ -34,13 +37,13 @@ export default class CollectionApiController {
       .apply(scope => scope.my(user.id))
       .apply(scope => scope.one(dto.collectionId))
       .preload('category')
-      .first()
+      .withCount('posts')
+      .preload('posts', (query) => {
+        query.orderBy('id', 'desc').limit(3)
+      })
+      .firstOrFail()
 
-    if (!collection) {
-      throw new Exception('Collection not found', { code: 'E_NOT_FOUND_COLLECTION', status: 404 })
-    }
-
-    return collection
+    return CollectionVmFactory.make(collection)
   }
 
   async store({ user, request }: HttpContext) {

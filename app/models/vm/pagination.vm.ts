@@ -6,6 +6,10 @@ export class PaginationDto {
   ) { }
 
   toData() {
+    console.log(this.meta)
+    console.log('======================')
+    console.log(this.items)
+
     return {
       perPage: this.meta.perPage,
       totalItemCount: this.meta.total,

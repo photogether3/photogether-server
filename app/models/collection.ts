@@ -13,6 +13,8 @@ export enum CollectionTypes {
 
 export default class Collection extends BaseModel {
 
+  public static serializeExtras = true
+
   @column({ isPrimary: true })
   declare id: number
 
