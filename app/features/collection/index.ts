@@ -8,5 +8,6 @@ export function collectionApiRoutes() {
     router.get('/:collectionId', [CollectionApiController, 'show']).middleware(middleware.auth())
     router.post('', [CollectionApiController, 'store']).middleware(middleware.auth())
     router.put('/:collectionId', [CollectionApiController, 'update']).middleware(middleware.auth())
+    router.delete('/:collectionId', [CollectionApiController, 'destroy']).middleware(middleware.auth())
   }).prefix('/v1/collections')
 }
