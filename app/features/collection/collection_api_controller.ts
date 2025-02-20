@@ -1,5 +1,5 @@
 import Category from '#models/category';
-import Collection from '#models/collection';
+import Collection, { CollectionTypes } from '#models/collection';
 import { CollectionVmFactory } from '#models/vm/collection.vm';
 import { defaultIndexCollectionDto, IndexCollectionDto, indexCollectionValidator, ShowCollectionDto, showCollectionValidator, StoreCollectionDto, storeCollectionValidator, UpdateCollectionDto, updateCollectionValidator } from '#validators/collection';
 import { Exception } from '@adonisjs/core/exceptions';
@@ -83,5 +83,25 @@ export default class CollectionApiController {
       categoryId: dto.categoryId,
       title: dto.title,
     }).save()
+  }
+
+  async destroy({ user, request }: HttpContext) {
+    const dto: ShowCollectionDto = await showCollectionValidator.validate({
+      collectionId: request.param('collectionId')
+    })
+
+    const collection = await Collection.findByOrFail({
+      id: dto.collectionId,
+      userId: user.id,
+    })
+
+    if (collection.type !== CollectionTypes.DEFAULT) {
+      throw new Exception('Cannot delete this collection', {
+        code: 'E_CANNOT_DELETE_COLLECTION',
+        status: 400
+      })
+    }
+
+    await collection.delete()
   }
 }
