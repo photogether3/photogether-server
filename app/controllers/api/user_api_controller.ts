@@ -1,12 +1,7 @@
-import Category from '#models/category'
-import Post from '#models/post'
 import User from '#models/user'
-import UserToken from '#models/user_token'
-import { UserVmFactory } from '#models/vm/user.vm'
+import { ProfileViewModel } from '#models/views/user.vm'
 import { emailTakenValidator, UpdatePasswordByOtpDto, updatePasswordByOtpValidator, UpdatePasswordDto, updatePasswordValidator, UpdateUserDto, updateUserValidator, UserDataResetDto, WithdrawDto, withdrawValidator } from '#validators/user'
-import { Exception } from '@adonisjs/core/exceptions'
 import type { HttpContext } from '@adonisjs/core/http'
-import db from '@adonisjs/lucid/services/db'
 
 export default class UserApiController {
 
@@ -18,7 +13,7 @@ export default class UserApiController {
   }
 
   async profile({ user }: HttpContext) {
-    return new UserVmFactory(user).toProfile()
+    return new ProfileViewModel(user).toJson()
   }
 
   async updateProfile({ request, user, uploadedFileUrl }: HttpContext) {
@@ -30,63 +25,26 @@ export default class UserApiController {
       imageUrl: uploadedFileUrl
     }).save()
 
-    return new UserVmFactory(user).toProfile()
+    return new ProfileViewModel(user).toJson()
   }
 
   async updatePasswordByOtp({ request }: HttpContext) {
-    // 유효성 검사
     const dto: UpdatePasswordByOtpDto = await request.validateUsing(updatePasswordByOtpValidator)
-
-    // 이미 존재하는 이메일인지 확인
-    let user = await User.findBy('email', dto.email)
-    if (!user) {
-      throw new Exception('이메일을 찾을 수 없습니다.', { status: 404, code: 'E_EMAIL_NOT_FOUND' })
-    }
-
-    // OTP 인증 코드 확인
-    if (!user.verifyOtp(dto.otp)) {
-      throw new Exception('OTP 인증 코드가 일치하지 않습니다.', { status: 400, code: 'E_INVALID_OTP' })
-    }
-
-    // 비밀번호 변경
-    await user.merge({ password: dto.password }).save()
+    await User.updatePasswordByOtp(dto)
   }
 
   async updatePassword({ user, request }: HttpContext) {
-    // 유효성 검사
     const dto: UpdatePasswordDto = await request.validateUsing(updatePasswordValidator)
-
-    // 기존 비밀번호 확인
-    if (!await user.verifyPassword(dto.currentPassword)) {
-      throw new Exception('기존 비밀번호와 일치하지 않습니다', { status: 400, code: 'E_INVALID_PASSWORD' })
-    }
-
-    // 비밀번호 변경
-    await user.merge({ password: dto.newPassword }).save()
+    await user.updatePassword(dto)
   }
 
   async reset({ user, request }: HttpContext) {
     const dto: UserDataResetDto = await request.validateUsing(withdrawValidator)
-    // OTP 인증 코드 확인
-    if (!user.verifyOtp(dto.otp)) {
-      throw new Exception('OTP 인증 코드가 일치하지 않습니다.', { status: 400, code: 'E_INVALID_OTP' })
-    }
-
-    // 사용자 데이터 삭제
-    const trx = await db.transaction()
-    await Category.query({ client: trx }).where('user_id', user.id).delete()
-    await Post.query({ client: trx }).where('user_id', user.id).delete()
-    await UserToken.query({ client: trx }).where('user_id', user.id).delete()
-    await trx.commit()
+    await user.resetData(dto.otp)
   }
 
   async withdraw({ user, request }: HttpContext) {
     const dto: WithdrawDto = await request.validateUsing(withdrawValidator)
-    // OTP 인증 코드 확인
-    if (!user.verifyOtp(dto.otp)) {
-      throw new Exception('OTP 인증 코드가 일치하지 않습니다.', { status: 400, code: 'E_INVALID_OTP' })
-    }
-
-    await user.delete()
+    await user.withdraw(dto.otp)
   }
 }

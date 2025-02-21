@@ -10,8 +10,7 @@ export const emailTakenValidator = vine.compile(
 export const updateUserValidator = vine.compile(
   vine.object({
     nickname: vine.string().minLength(2).maxLength(12),
-    bio: vine.string().optional(),
-    categoryIds: vine.string(),
+    bio: vine.string().optional()
   })
 )
 export type UpdateUserDto = Infer<typeof updateUserValidator>
