@@ -1,4 +1,6 @@
+import { LoginDto } from '#validators/auth'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
+import { Exception } from '@adonisjs/core/exceptions'
 import { compose } from '@adonisjs/core/helpers'
 import hash from '@adonisjs/core/services/hash'
 import { BaseModel, belongsTo, column, hasMany, hasOne, manyToMany } from '@adonisjs/lucid/orm'
@@ -16,6 +18,12 @@ const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
 })
 
 export default class User extends compose(BaseModel, AuthFinder) {
+
+  /**
+   * ------------------------------------------------------------
+   * Properties ✨
+   * ------------------------------------------------------------
+   */
 
   @column({ isPrimary: true })
   declare id: number
@@ -71,14 +79,37 @@ export default class User extends compose(BaseModel, AuthFinder) {
   })
   declare favoriteCategories: ManyToMany<typeof Category>
 
+  /**
+   * ------------------------------------------------------------
+   * Methods 🎁
+   * ------------------------------------------------------------
+   */
+
   verifyOtp(otp: string) {
     console.log(this.otp, otp)
     return this.otp !== otp ? false : true
   }
 
-  async withUpdatePassword(password: string) {
-    return await User.updateOrCreate({ id: this.id }, {
-      password
-    })
+  static async login(dto: LoginDto) {
+    let errMsg = '아이디 또는 비밀번호를 찾을 수 없습니다.'
+    let errCode = 'E_USER_NOT_FOUND'
+    let status = 404
+    let user = await User.findBy('email', dto.email)
+
+    if (!user) {
+      throw new Exception(errMsg, { status, code: errCode })
+    }
+
+    // 비밀번호 확인
+    if (!await user.verifyPassword(dto.password)) {
+      throw new Exception(errMsg, { status, code: errCode })
+    }
+
+    // 이메일 인증 여부 확인
+    if (!user.isEmailVerified) {
+      throw new Exception('인증되지 않은 계정입니다.', { status, code: 'E_EMAIL_NOT_VERIFIED' })
+    }
+
+    return user
   }
 }

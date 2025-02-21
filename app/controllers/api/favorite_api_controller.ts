@@ -9,6 +9,6 @@ export default class FavoriteApiController {
 
   async storeOrUpdate({ user, request }: HttpContext) {
     const dto: StoreFavoriteDto = await request.validateUsing(storeFavoriteValidator)
-    await user.related('favoriteCategories').sync(dto.categoriesIds)
+    await user.related('favoriteCategories').sync(dto.categoryIds)
   }
 }

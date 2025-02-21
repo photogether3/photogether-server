@@ -14,32 +14,12 @@ import { DateTime } from 'luxon'
 
 @inject()
 export default class AuthApiController {
-
-  constructor(
-    private readonly jwtService: JwtService
-  ) { }
-
   async login({ request }: HttpContext) {
     const dto: LoginDto = await request.validateUsing(loginValidator)
 
-    // 아이디 확인
-    let user = await User.findBy('email', dto.email)
-    if (!user) {
-      throw new Exception('아이디 또는 비밀번호를 찾을 수 없습니다.', { status: 404, code: 'E_USER_NOT_FOUND' })
-    }
+    const user = await User.login(dto)
 
-    // 비밀번호 확인
-    if (!await user.verifyPassword(dto.password)) {
-      throw new Exception('아이디 또는 비밀번호를 찾을 수 없습니다.', { status: 404, code: 'E_USER_NOT_FOUND' })
-    }
-
-    // 이메일 인증 여부 확인
-    if (!user.isEmailVerified) {
-      throw new Exception('인증되지 않은 계정입니다.', { status: 404, code: 'E_EMAIL_NOT_VERIFIED' })
-    }
-
-    // 토큰 생성
-    const tokens = this.jwtService.generateTokens(user.id)
+    const tokens = JwtService.generateTokens(user.id)
     await UserToken.createOrUpdate(user.id, tokens.refreshToken)
     return tokens
   }
@@ -112,7 +92,6 @@ export default class AuthApiController {
 
   async verifyOtp({ request }: HttpContext) {
     // 유효성 검사
-    request
     const payload = await request.validateUsing(verifyOtpValidator)
 
     // 이미 존재하는 이메일인지 확인
@@ -134,7 +113,7 @@ export default class AuthApiController {
     }).save()
 
     // 토큰 발급
-    const tokens = this.jwtService.generateTokens(user.id)
+    const tokens = JwtService.generateTokens(user.id)
     await UserToken.createOrUpdate(user.id, tokens.refreshToken)
     return tokens
   }
@@ -156,8 +135,8 @@ export default class AuthApiController {
     }
 
     // 토큰 발급
-    const tokens = this.jwtService.generateTokens(userToken.userId)
-    
+    const tokens = JwtService.generateTokens(userToken.userId)
+
     await userToken.merge({
       refreshToken,
       lastRefreshingDate: DateTime.now(),

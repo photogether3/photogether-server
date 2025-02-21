@@ -49,7 +49,7 @@ export default class UserApiController {
     }
 
     // 비밀번호 변경
-    await user.withUpdatePassword(dto.password)
+    await user.merge({ password: dto.password }).save()
   }
 
   async updatePassword({ user, request }: HttpContext) {
@@ -62,7 +62,7 @@ export default class UserApiController {
     }
 
     // 비밀번호 변경
-    await user.withUpdatePassword(dto.newPassword)
+    await user.merge({ password: dto.newPassword }).save()
   }
 
   async reset({ user, request }: HttpContext) {

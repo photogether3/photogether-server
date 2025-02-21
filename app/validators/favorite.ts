@@ -3,7 +3,7 @@ import { Infer } from '@vinejs/vine/types'
 
 export const storeFavoriteValidator = vine.compile(
   vine.object({
-    categoriesIds: vine.array(
+    categoryIds: vine.array(
       vine.number()
     )
   })
