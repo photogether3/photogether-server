@@ -20,8 +20,9 @@
           <thead>
             <tr>
               <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-3">Name</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Title</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Bio</th>
               <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Email</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Is Verify</th>
               <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Role</th>
               <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-3">
                 <span class="sr-only">Edit</span>
@@ -29,16 +30,24 @@
             </tr>
           </thead>
           <tbody class="bg-white">
-            <tr class="even:bg-gray-50">
-              <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-3">Lindsay Walton</td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Front-end Developer</td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">lindsay.walton@example.com</td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Member</td>
-              <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
-                <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only">, Lindsay
-                    Walton</span></a>
-              </td>
-            </tr>
+            @each(user in data)
+              <tr class="even:bg-gray-50">
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-3">{{user.nickname}}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{truncate(user.bio, 10)}}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{user.email}}</td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                  <div class="flex items-center gap-1">
+                    <input type="checkbox" class="switch switch-warning" id="switchWarning{{user.id}}" checked="{{user.isEmailVerified}}" />
+                    <label class="label label-text text-base" for="switchWarning{{user.id}}"></label>
+                  </div>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{user.role.name}}</td>
+                <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-3">
+                  <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only">, Lindsay
+                      Walton</span></a>
+                </td>
+              </tr>
+            @end
 
             <!-- More people... -->
           </tbody>
