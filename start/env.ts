@@ -18,11 +18,13 @@ export default await Env.create(new URL('../', import.meta.url), {
   HOST: Env.schema.string({ format: 'host' }),
   LOG_LEVEL: Env.schema.string(),
 
-  DB_HOST: Env.schema.string(),
-  DB_PORT: Env.schema.number(),
-  DB_NAME: Env.schema.string(),
-  DB_USERNAME: Env.schema.string(),
-  DB_PASSWORD: Env.schema.string.optional(),
+  DB_URL: Env.schema.string(),
+
+  // DB_HOST: Env.schema.string(),
+  // DB_PORT: Env.schema.number(),
+  // DB_NAME: Env.schema.string(),
+  // DB_USERNAME: Env.schema.string(),
+  // DB_PASSWORD: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------

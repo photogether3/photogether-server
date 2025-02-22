@@ -5,13 +5,13 @@ const dbConfig = defineConfig({
   connection: 'sqlite',
   connections: {
     sqlite: {
-      client: 'postgres',
+      client: 'libsql',
       connection: {
-        host: env.get('DB_HOST'),
-        port: env.get('DB_PORT'),
-        database: env.get('DB_NAME'),
-        user: env.get('DB_USERNAME'),
-        password: env.get('DB_PASSWORD')
+        filename: env.get('DB_URL'),
+      },
+      pool: {
+        min: 0,
+        idleTimeoutMillis: 5 * 1000,
       },
       useNullAsDefault: true,
       migrations: {
