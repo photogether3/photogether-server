@@ -8,7 +8,7 @@ export type JwtResult = {
   expiresIn: number
 }
 
-export class JwtService {
+export class JwtUtil {
 
   static generateTokens(userId: number) {
     const accessToken = jwt.sign({}, env.get('APP_KEY'), {

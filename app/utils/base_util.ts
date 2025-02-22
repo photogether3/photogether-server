@@ -1,4 +1,4 @@
-export class UtilService {
+export class BaseUtil {
   static generateRandomNickname(): string {
     const prefixes = [
       "멋진", "든든한", "귀여운", "강력한", "재빠른", "화려한", "용감한", "현명한", "활기찬", "유쾌한",
