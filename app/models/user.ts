@@ -16,7 +16,6 @@ const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
 })
 
 export default class User extends compose(BaseModel, AuthFinder) {
-
   /**
    |------------------------------------------------------------
    |Properties ✨
@@ -73,7 +72,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   @manyToMany(() => Category, {
     pivotTable: 'favorites',
-    pivotTimestamps: true
+    pivotTimestamps: true,
   })
   declare favoriteCategories: ManyToMany<typeof Category>
 

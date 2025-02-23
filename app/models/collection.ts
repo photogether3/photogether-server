@@ -8,11 +8,10 @@ import User from './user.js'
 export enum CollectionTypes {
   DEFAULT = 'DEFAULT',
   UNCATEGORIZED = 'UNCATEGORIZED',
-  TRASH = 'TRASH'
+  TRASH = 'TRASH',
 }
 
 export default class Collection extends BaseModel {
-
   public static serializeExtras = true
 
   @column({ isPrimary: true })

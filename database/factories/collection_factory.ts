@@ -5,7 +5,7 @@ export const CollectionFactory = factory
   .define(Collection, async ({ faker }) => {
     return {
       title: faker.lorem.slug(),
-      type: CollectionTypes.DEFAULT
+      type: CollectionTypes.DEFAULT,
     }
   })
   .build()

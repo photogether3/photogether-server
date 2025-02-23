@@ -1,8 +1,7 @@
-import User from "#models/user";
-import { DateTime } from "luxon";
+import User from '#models/user'
+import { DateTime } from 'luxon'
 
 export class ProfileViewModel {
-
   declare id: number
   declare nickname: string
   declare bio: string
@@ -11,9 +10,7 @@ export class ProfileViewModel {
   declare createdAt: DateTime<boolean>
   declare updatedAt: DateTime<boolean>
 
-  constructor(
-    public readonly user: User
-  ) { }
+  constructor(public readonly user: User) {}
 
   toJson() {
     return {

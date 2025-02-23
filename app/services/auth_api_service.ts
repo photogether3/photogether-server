@@ -12,7 +12,6 @@ import mail from '@adonisjs/mail/services/main'
 import { DateTime } from 'luxon'
 
 export default class AuthApiService {
-
   /**
    * @todo 로그인 작업을 수행합니다. 성공시 JWT 토큰을 반환합니다.
    * @throws 계정을 찾을 수 없으면 404 오류를 발생시킵니다.
@@ -28,11 +27,14 @@ export default class AuthApiService {
     if (!user) {
       throw new Exception(errMsg, { status, code: errCode })
     }
-    if (!await user.verifyPassword(dto.password)) {
+    if (!(await user.verifyPassword(dto.password))) {
       throw new Exception(errMsg, { status, code: errCode })
     }
     if (!user.isEmailVerified) {
-      throw new Exception('인증되지 않은 계정입니다.', { status: 400, code: 'E_EMAIL_NOT_VERIFIED' })
+      throw new Exception('인증되지 않은 계정입니다.', {
+        status: 400,
+        code: 'E_EMAIL_NOT_VERIFIED',
+      })
     }
 
     const tokens = JwtUtil.generateTokens(user.id)
@@ -52,30 +54,36 @@ export default class AuthApiService {
 
     const tx = await db.transaction()
 
-    user = await User.create({
-      ...dto,
-      roleId: Roles.USER,
-      password: dto.password,
-      nickname: BaseUtil.generateRandomNickname(),
-      otp: null,
-      otpExpiryDate: null,
-      isEmailVerified: false,
-    }, { client: tx })
-
-    await Collection.createMany([
+    user = await User.create(
       {
-        userId: user.id,
-        categoryId: null,
-        type: CollectionTypes.UNCATEGORIZED,
-        title: '미분류'
+        ...dto,
+        roleId: Roles.USER,
+        password: dto.password,
+        nickname: BaseUtil.generateRandomNickname(),
+        otp: null,
+        otpExpiryDate: null,
+        isEmailVerified: false,
       },
-      {
-        userId: user.id,
-        categoryId: null,
-        type: CollectionTypes.TRASH,
-        title: '휴지통'
-      }
-    ], { client: tx })
+      { client: tx }
+    )
+
+    await Collection.createMany(
+      [
+        {
+          userId: user.id,
+          categoryId: null,
+          type: CollectionTypes.UNCATEGORIZED,
+          title: '미분류',
+        },
+        {
+          userId: user.id,
+          categoryId: null,
+          type: CollectionTypes.TRASH,
+          title: '휴지통',
+        },
+      ],
+      { client: tx }
+    )
 
     await tx.commit()
   }
@@ -90,10 +98,12 @@ export default class AuthApiService {
       throw new Exception('이메일을 찾을 수 없습니다.', { status: 404, code: 'E_EMAIL_NOT_FOUND' })
     }
 
-    await user.merge({
-      otp: BaseUtil.generateOTP(),
-      otpExpiryDate: DateTime.now().plus({ minutes: 5 })
-    }).save()
+    await user
+      .merge({
+        otp: BaseUtil.generateOTP(),
+        otpExpiryDate: DateTime.now().plus({ minutes: 5 }),
+      })
+      .save()
 
     await mail.send((message) => {
       message
@@ -115,14 +125,19 @@ export default class AuthApiService {
     }
 
     if (!user.verifyOtp(otp)) {
-      throw new Exception('OTP 인증 코드가 일치하지 않습니다.', { status: 400, code: 'E_INVALID_OTP' })
+      throw new Exception('OTP 인증 코드가 일치하지 않습니다.', {
+        status: 400,
+        code: 'E_INVALID_OTP',
+      })
     }
 
-    await user.merge({
-      isEmailVerified: true,
-      otp: null,
-      otpExpiryDate: null,
-    }).save()
+    await user
+      .merge({
+        isEmailVerified: true,
+        otp: null,
+        otpExpiryDate: null,
+      })
+      .save()
 
     const tokens = JwtUtil.generateTokens(user.id)
     await UserToken.createOrUpdate(user.id, tokens.refreshToken)
@@ -146,10 +161,12 @@ export default class AuthApiService {
 
     const tokens = JwtUtil.generateTokens(userToken.userId)
 
-    await userToken.merge({
-      refreshToken,
-      lastRefreshingDate: DateTime.now(),
-    }).save()
+    await userToken
+      .merge({
+        refreshToken,
+        lastRefreshingDate: DateTime.now(),
+      })
+      .save()
 
     return tokens
   }

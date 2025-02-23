@@ -1,4 +1,4 @@
-import Post from "../../features/post/post.js";
+import Post from "#models/post";
 
 export type PostDetailVm = {
   id: number;

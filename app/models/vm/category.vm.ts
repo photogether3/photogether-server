@@ -1,4 +1,4 @@
-import Category from "#models/category";
+import Category from '#models/category'
 
 export type CategoryWithFavoriteVm = {
   id: number
@@ -7,14 +7,10 @@ export type CategoryWithFavoriteVm = {
 }
 
 export class CategoryVmFactory {
-  constructor(
-    private readonly category: Category
-  ) { }
+  constructor(private readonly category: Category) {}
 
   toWithFavorite(userId: number) {
-    const isFavorite = this.category.favoriteUsers.some(
-      user => user.id === userId
-    )
+    const isFavorite = this.category.favoriteUsers.some((user) => user.id === userId)
     return {
       id: this.category.id,
       name: this.category.name,

@@ -6,11 +6,7 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.integer('user_id')
-        .unsigned()
-        .notNullable()
-        .references('users.id')
-        .onDelete('CASCADE')
+      table.integer('user_id').unsigned().notNullable().references('users.id').onDelete('CASCADE')
       table.string('refresh_token').notNullable()
       table.timestamp('expiry_date').notNullable()
       table.timestamp('last_refreshing_date').notNullable()

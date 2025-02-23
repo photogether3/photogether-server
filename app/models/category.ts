@@ -1,15 +1,15 @@
-import { BaseModel, column, hasMany, manyToMany } from '@adonisjs/lucid/orm';
-import type { HasMany, ManyToMany } from '@adonisjs/lucid/types/relations';
-import { DateTime } from 'luxon';
-import Collection from './collection.js';
-import User from './user.js';
+import { BaseModel, column, hasMany, manyToMany } from '@adonisjs/lucid/orm'
+import type { HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
+import { DateTime } from 'luxon'
+import Collection from './collection.js'
+import User from './user.js'
 
 export default class Category extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
 
   @column()
-  declare name: string;
+  declare name: string
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -22,7 +22,7 @@ export default class Category extends BaseModel {
 
   @manyToMany(() => User, {
     pivotTable: 'favorites',
-    pivotTimestamps: true
+    pivotTimestamps: true,
   })
   declare favoriteUsers: ManyToMany<typeof User>
 }

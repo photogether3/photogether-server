@@ -3,14 +3,19 @@ import Post from '#models/post'
 import User from '#models/user'
 import UserToken from '#models/user_token'
 import { ProfileViewModel } from '#models/views/user.vm'
-import { UpdatePasswordByOtpDto, UpdatePasswordDto, UpdateUserDto, UserDataResetDto, WithdrawDto } from '#validators/user'
+import {
+  UpdatePasswordByOtpDto,
+  UpdatePasswordDto,
+  UpdateUserDto,
+  UserDataResetDto,
+  WithdrawDto,
+} from '#validators/user'
 import { Exception } from '@adonisjs/core/exceptions'
 import db from '@adonisjs/lucid/services/db'
 
 export default class UserApiService {
-
   static async isEmailTaken(email: string) {
-    const isDuplicated = !!await User.findBy('email', email)
+    const isDuplicated = !!(await User.findBy('email', email))
     return { isDuplicated }
   }
 
@@ -19,11 +24,13 @@ export default class UserApiService {
   }
 
   static async updateProfile(user: User, dto: UpdateUserDto, uploadedFileUrl: string | null) {
-    user = await user.merge({
-      nickname: dto.nickname,
-      bio: dto.bio ?? null,
-      imageUrl: uploadedFileUrl
-    }).save()
+    user = await user
+      .merge({
+        nickname: dto.nickname,
+        bio: dto.bio ?? null,
+        imageUrl: uploadedFileUrl,
+      })
+      .save()
 
     return new ProfileViewModel(user).toJson()
   }
@@ -39,7 +46,10 @@ export default class UserApiService {
       throw new Exception('이메일을 찾을 수 없습니다.', { status: 404, code: 'E_EMAIL_NOT_FOUND' })
     }
     if (!user.verifyOtp(dto.otp)) {
-      throw new Exception('OTP 인증 코드가 일치하지 않습니다.', { status: 400, code: 'E_INVALID_OTP' })
+      throw new Exception('OTP 인증 코드가 일치하지 않습니다.', {
+        status: 400,
+        code: 'E_INVALID_OTP',
+      })
     }
 
     await user.merge({ password: dto.password }).save()
@@ -50,8 +60,11 @@ export default class UserApiService {
    * @throws 비밀번호가 일치하지 않으면 400 오류를 발생시킵니다.
    */
   static async updatePassword(user: User, dto: UpdatePasswordDto) {
-    if (!await user.verifyPassword(dto.currentPassword)) {
-      throw new Exception('기존 비밀번호와 일치하지 않습니다', { status: 400, code: 'E_INVALID_PASSWORD' })
+    if (!(await user.verifyPassword(dto.currentPassword))) {
+      throw new Exception('기존 비밀번호와 일치하지 않습니다', {
+        status: 400,
+        code: 'E_INVALID_PASSWORD',
+      })
     }
     await user.merge({ password: dto.newPassword }).save()
   }
@@ -62,7 +75,10 @@ export default class UserApiService {
    */
   static async reset(user: User, dto: UserDataResetDto) {
     if (!user.verifyOtp(dto.otp)) {
-      throw new Exception('OTP 인증 코드가 일치하지 않습니다.', { status: 400, code: 'E_INVALID_OTP' })
+      throw new Exception('OTP 인증 코드가 일치하지 않습니다.', {
+        status: 400,
+        code: 'E_INVALID_OTP',
+      })
     }
     const trx = await db.transaction()
     await Category.query({ client: trx }).where('user_id', user.id).delete()
@@ -79,7 +95,7 @@ export default class UserApiService {
     if (!user.verifyOtp(dto.otp)) {
       throw new Exception('OTP 인증 코드가 일치하지 않습니다.', {
         status: 400,
-        code: 'E_INVALID_OTP'
+        code: 'E_INVALID_OTP',
       })
     }
     await user.delete()

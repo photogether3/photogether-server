@@ -1,20 +1,29 @@
-import CollectionApiService from '#services/collection_api_service';
-import { defaultIndexCollectionDto, IndexCollectionDto, indexCollectionValidator, ShowCollectionDto, showCollectionValidator, StoreCollectionDto, storeCollectionValidator, UpdateCollectionDto, updateCollectionValidator } from '#validators/collection';
-import type { HttpContext } from '@adonisjs/core/http';
+import CollectionApiService from '#services/collection_api_service'
+import {
+  defaultIndexCollectionDto,
+  IndexCollectionDto,
+  indexCollectionValidator,
+  ShowCollectionDto,
+  showCollectionValidator,
+  StoreCollectionDto,
+  storeCollectionValidator,
+  UpdateCollectionDto,
+  updateCollectionValidator,
+} from '#validators/collection'
+import type { HttpContext } from '@adonisjs/core/http'
 
 export default class CollectionApiController {
-
   async index({ user, request }: HttpContext) {
     const dto: IndexCollectionDto = await indexCollectionValidator.validate({
       ...defaultIndexCollectionDto,
-      ...request.all()
+      ...request.all(),
     })
     return await CollectionApiService.index(user.id, dto)
   }
 
   async show({ user, request }: HttpContext) {
     const dto: ShowCollectionDto = await showCollectionValidator.validate({
-      collectionId: request.param('collectionId')
+      collectionId: request.param('collectionId'),
     })
     return await CollectionApiService.show(user.id, dto.collectionId)
   }
@@ -35,7 +44,7 @@ export default class CollectionApiController {
 
   async destroy({ user, request }: HttpContext) {
     const dto: ShowCollectionDto = await showCollectionValidator.validate({
-      collectionId: request.param('collectionId')
+      collectionId: request.param('collectionId'),
     })
     return await CollectionApiService.destroy(user.id, dto.collectionId)
   }

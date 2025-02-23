@@ -1,9 +1,9 @@
-import { Exception } from "@adonisjs/core/exceptions";
-import { cuid } from "@adonisjs/core/helpers";
-import { HttpContext } from "@adonisjs/core/http";
-import { NextFn } from "@adonisjs/core/types/http";
-import drive from "@adonisjs/drive/services/main";
-import { DateTime } from "luxon";
+import { Exception } from '@adonisjs/core/exceptions'
+import { cuid } from '@adonisjs/core/helpers'
+import { HttpContext } from '@adonisjs/core/http'
+import { NextFn } from '@adonisjs/core/types/http'
+import drive from '@adonisjs/drive/services/main'
+import { DateTime } from 'luxon'
 
 declare module '@adonisjs/core/http' {
   interface HttpContext {
@@ -40,7 +40,6 @@ export default class DriveMiddleware {
       await drive.use().driver.setVisibility(key, 'public')
 
       ctx.uploadedFileUrl = await drive.use().getUrl(key)
-
     } catch (err) {
       console.error(err)
       throw new Exception('Failed to upload image', {

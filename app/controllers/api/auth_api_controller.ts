@@ -1,12 +1,19 @@
 import UserToken from '#models/user_token'
 import AuthApiService from '#services/auth_api_service'
-import { generateOtpValidator, LoginDto, loginValidator, refreshValidator, RegisterDto, registerValidator, verifyOtpValidator } from '#validators/auth'
+import {
+  generateOtpValidator,
+  LoginDto,
+  loginValidator,
+  refreshValidator,
+  RegisterDto,
+  registerValidator,
+  verifyOtpValidator,
+} from '#validators/auth'
 import { inject } from '@adonisjs/core'
 import type { HttpContext } from '@adonisjs/core/http'
 
 @inject()
 export default class AuthApiController {
-
   async login({ request }: HttpContext) {
     const dto: LoginDto = await request.validateUsing(loginValidator)
     return await AuthApiService.login(dto)

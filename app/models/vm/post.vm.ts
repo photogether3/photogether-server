@@ -1,29 +1,27 @@
-import Post from "#models/post";
+import Post from '#models/post'
 
 export type PostDetailVm = {
-  id: number;
-  title: string;
-  content: string;
-  imageUrl: string;
-  collectionId: number;
+  id: number
+  title: string
+  content: string
+  imageUrl: string
+  collectionId: number
   collection: {
-    id: number;
-    title: string;
-  };
+    id: number
+    title: string
+  }
   category: {
-    id: number;
-    title: string;
-  } | null;
+    id: number
+    title: string
+  } | null
   metadataList: {
-    content: string;
-    isPublic: boolean;
-  }[];
+    content: string
+    isPublic: boolean
+  }[]
 }
 
 export class PostVmFactory {
-  constructor(
-    private readonly post: Post,
-  ) { }
+  constructor(private readonly post: Post) {}
 
   toDetail() {
     return {
@@ -36,14 +34,16 @@ export class PostVmFactory {
         id: this.post.collection.id,
         title: this.post.collection.title,
       },
-      category: !this.post.collection.category ? null : {
-        id: this.post.collection.category.id,
-        title: this.post.collection.category.name
-      },
+      category: !this.post.collection.category
+        ? null
+        : {
+            id: this.post.collection.category.id,
+            title: this.post.collection.category.name,
+          },
       metadataList: this.post.metadatas.map((y: any) => ({
         content: y.content,
         isPublic: y.isPublic,
-      }))
+      })),
     } as PostDetailVm
   }
 }

@@ -1,9 +1,8 @@
-
 export class PaginationDto {
   constructor(
     private readonly meta: any,
     private readonly items: any[]
-  ) { }
+  ) {}
 
   toData() {
     console.log(this.meta)

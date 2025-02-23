@@ -6,7 +6,7 @@ export const PostMetadataFactory = factory
     return {
       rank: 1,
       content: faker.lorem.paragraph(),
-      isPublic: faker.datatype.boolean()
+      isPublic: faker.datatype.boolean(),
     }
   })
   .build()

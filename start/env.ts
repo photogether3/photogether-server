@@ -49,5 +49,5 @@ export default await Env.create(new URL('../', import.meta.url), {
   |----------------------------------------------------------
   */
   DRIVE_DISK: Env.schema.enum(['gcs'] as const),
-  GCS_BUCKET: Env.schema.string()
+  GCS_BUCKET: Env.schema.string(),
 })

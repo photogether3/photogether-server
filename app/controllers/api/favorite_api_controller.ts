@@ -1,9 +1,8 @@
-import { StoreFavoriteDto, storeFavoriteValidator } from "#validators/favorite";
-import { HttpContext } from "@adonisjs/core/http";
+import { StoreFavoriteDto, storeFavoriteValidator } from '#validators/favorite'
+import { HttpContext } from '@adonisjs/core/http'
 
 export default class FavoriteApiController {
-
-  async index({ user }: HttpContext) { 
+  async index({ user }: HttpContext) {
     return await user.related('favoriteCategories').query()
   }
 

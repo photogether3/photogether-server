@@ -4,7 +4,6 @@ import { DateTime } from 'luxon'
 import User from './user.js'
 
 export default class UserToken extends BaseModel {
-
   @column({ isPrimary: true })
   declare id: number
 
@@ -45,7 +44,7 @@ export default class UserToken extends BaseModel {
 
     return await UserToken.create({
       userId,
-      ...initialValue
+      ...initialValue,
     })
   }
 }

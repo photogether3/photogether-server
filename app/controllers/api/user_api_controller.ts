@@ -1,9 +1,18 @@
 import UserApiService from '#services/user_api_service'
-import { UpdatePasswordByOtpDto, updatePasswordByOtpValidator, UpdatePasswordDto, updatePasswordValidator, UpdateUserDto, updateUserValidator, UserDataResetDto, WithdrawDto, withdrawValidator } from '#validators/user'
+import {
+  UpdatePasswordByOtpDto,
+  updatePasswordByOtpValidator,
+  UpdatePasswordDto,
+  updatePasswordValidator,
+  UpdateUserDto,
+  updateUserValidator,
+  UserDataResetDto,
+  WithdrawDto,
+  withdrawValidator,
+} from '#validators/user'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class UserApiController {
-
   async isEmailTaken({ request }: HttpContext) {
     const emailParam = request.param('email')
     return await UserApiService.isEmailTaken(emailParam)

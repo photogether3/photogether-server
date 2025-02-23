@@ -7,12 +7,8 @@ export const UserTokenFactory = factory
   .define(UserToken, async ({ faker }) => {
     return {
       refreshToken: faker.string.nanoid(),
-      expiryDate: DateTime.fromJSDate(
-        faker.date.future()
-      ),
-      lastRefreshingDate: DateTime.fromJSDate(
-        faker.date.recent()
-      )
+      expiryDate: DateTime.fromJSDate(faker.date.future()),
+      lastRefreshingDate: DateTime.fromJSDate(faker.date.recent()),
     }
   })
   .relation('user', () => UserFactory)

@@ -29,7 +29,7 @@ export default class Post extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
-  
+
   @belongsTo(() => User)
   declare user: BelongsTo<typeof User>
 

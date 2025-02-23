@@ -1,10 +1,9 @@
-import Collection, { CollectionTypes } from "../../features/collection/collection.js";
-import { ModelPaginatorContract } from "@adonisjs/lucid/types/model";
-import { DateTime } from "luxon";
-import { PaginationDto } from "./pagination.vm.js";
+import Collection, { CollectionTypes } from '#models/collection'
+import { ModelPaginatorContract } from '@adonisjs/lucid/types/model'
+import { DateTime } from 'luxon'
+import { PaginationDto } from './pagination.vm.js'
 
 export class CollectionViewModel {
-
   declare id: number
   declare title: string
   declare type: CollectionTypes
@@ -20,9 +19,7 @@ export class CollectionViewModel {
   static makeWithPaginatedData(collections: ModelPaginatorContract<Collection>) {
     const { meta, data } = collections.serialize()
 
-    const items = data.map((x, i) =>
-      this.make(x as Collection, collections[i].$extras)
-    )
+    const items = data.map((x, i) => this.make(x as Collection, collections[i].$extras))
 
     return new PaginationDto(meta, items).toData()
   }
@@ -30,14 +27,16 @@ export class CollectionViewModel {
   static make(x: Collection, $extras: any = {}) {
     const postCount = Number.parseInt($extras.posts_count) ?? 0
     const imageUrls = x.posts
-      .map((x: any) => x.imageUrl)
+      .map((y: any) => y.imageUrl)
       .flat()
-      .filter((x: any) => x !== null)
+      .filter((z: any) => z !== null)
 
-    const category = x.category ? {
-      id: x.category?.id,
-      name: x.category?.name,
-    } : null
+    const category = x.category
+      ? {
+          id: x.category?.id,
+          name: x.category?.name,
+        }
+      : null
 
     return {
       id: x.id,

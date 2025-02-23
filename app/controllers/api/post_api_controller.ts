@@ -1,10 +1,22 @@
-import Post from '#models/post';
-import PostApiService from '#services/post_api_service';
-import { defaultPostIndexDto, DestroyPostDto, destroyPostsValidator, MovePostsDto, movePostsValidator, parsePostMetadata, PostIndexDto, postIndexValidator, PostStoreDto, postStoreValidator, UpdatePostDto, updatePostValidator } from '#validators/post';
-import type { HttpContext } from '@adonisjs/core/http';
+import Post from '#models/post'
+import PostApiService from '#services/post_api_service'
+import {
+  defaultPostIndexDto,
+  DestroyPostDto,
+  destroyPostsValidator,
+  MovePostsDto,
+  movePostsValidator,
+  parsePostMetadata,
+  PostIndexDto,
+  postIndexValidator,
+  PostStoreDto,
+  postStoreValidator,
+  UpdatePostDto,
+  updatePostValidator,
+} from '#validators/post'
+import type { HttpContext } from '@adonisjs/core/http'
 
 export default class PostApiController {
-
   async index({ user, request }: HttpContext) {
     const requestData = {
       ...defaultPostIndexDto,
@@ -26,7 +38,7 @@ export default class PostApiController {
     const metadataList = parsePostMetadata(request.body()?.metadataStringify)
     const dto: PostStoreDto = await postStoreValidator.validate({
       ...request.all(),
-      metadataList
+      metadataList,
     })
     return await PostApiService.store(user.id, dto, uploadedFileUrl)
   }

@@ -13,7 +13,7 @@ export default class extends BaseSeeder {
       {
         id: Roles.ADMIN,
         name: 'Admin',
-      }
+      },
     ])
 
     await Category.createMany([

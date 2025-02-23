@@ -14,7 +14,7 @@ export const UserFactory = factory
       isEmailVerified: true,
       password: faker.internet.password(),
       imageUrl: faker.image.avatar(),
-      otp: null
+      otp: null,
     }
   })
   .relation('token', () => UserTokenFactory)

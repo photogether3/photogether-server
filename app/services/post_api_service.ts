@@ -1,14 +1,19 @@
-import Collection, { CollectionTypes } from '#models/collection';
-import Post from '#models/post';
-import PostMetadata from '#models/post_metadata';
-import { PaginationDto } from '#models/vm/pagination.vm';
-import { PostVmFactory } from '#models/vm/post.vm';
-import { DestroyPostDto, MovePostsDto, PostIndexDto, PostStoreDto, UpdatePostDto } from '#validators/post';
-import { Exception } from '@adonisjs/core/exceptions';
-import db from '@adonisjs/lucid/services/db';
+import Collection, { CollectionTypes } from '#models/collection'
+import Post from '#models/post'
+import PostMetadata from '#models/post_metadata'
+import { PaginationDto } from '#models/vm/pagination.vm'
+import { PostVmFactory } from '#models/vm/post.vm'
+import {
+  DestroyPostDto,
+  MovePostsDto,
+  PostIndexDto,
+  PostStoreDto,
+  UpdatePostDto,
+} from '#validators/post'
+import { Exception } from '@adonisjs/core/exceptions'
+import db from '@adonisjs/lucid/services/db'
 
 export default class PostApiService {
-
   /**
    * @todo 게시물 목록을 조회합니다.
    */
@@ -27,7 +32,7 @@ export default class PostApiService {
 
     const { meta, data } = result.serialize()
     const posts = data as Post[]
-    const items = posts.map(x => new PostVmFactory(x).toDetail())
+    const items = posts.map((x) => new PostVmFactory(x).toDetail())
     return new PaginationDto(meta, items).toData()
   }
 
@@ -37,7 +42,7 @@ export default class PostApiService {
   static async show(userId: number, postId: number) {
     const post = await Post.findByOrFail({
       userId: userId,
-      id: postId
+      id: postId,
     })
     await post.load('collection', (collection) => {
       collection.preload('category')
@@ -55,16 +60,18 @@ export default class PostApiService {
 
     const trx = await db.transaction()
 
-    const post = await Post.create({
-      userId: userId,
-      collectionId: dto.collectionId,
-      title: dto.title,
-      content: dto.content,
-      imageUrl: uploadedFileUrl
-    }, { client: trx })
+    const post = await Post.create(
+      {
+        userId: userId,
+        collectionId: dto.collectionId,
+        title: dto.title,
+        content: dto.content,
+        imageUrl: uploadedFileUrl,
+      },
+      { client: trx }
+    )
 
-    await PostMetadata
-      .creates(post.id, dto.metadataList, trx)
+    await PostMetadata.creates(post.id, dto.metadataList, trx)
 
     await trx.commit()
 
@@ -77,27 +84,25 @@ export default class PostApiService {
    * @transaction 게시물, 게시물 메타데이터
    */
   static async update(userId: number, dto: UpdatePostDto) {
-    const post = await Post.query()
-      .where('id', dto.postId)
-      .andWhere('user_id', userId)
-      .first()
+    const post = await Post.query().where('id', dto.postId).andWhere('user_id', userId).first()
 
-    if (!post) throw new Exception('Post not found', {
-      status: 404,
-      code: 'E_NOT_FOUND',
-    })
+    if (!post)
+      throw new Exception('Post not found', {
+        status: 404,
+        code: 'E_NOT_FOUND',
+      })
 
     const trx = await db.transaction()
 
-    await post.merge({
-      title: dto.title,
-      content: dto.content,
-    })
+    await post
+      .merge({
+        title: dto.title,
+        content: dto.content,
+      })
       .useTransaction(trx)
       .save()
 
-    await PostMetadata
-      .creates(post.id, dto.metadataList, trx)
+    await PostMetadata.creates(post.id, dto.metadataList, trx)
 
     await trx.commit()
   }
@@ -106,18 +111,14 @@ export default class PostApiService {
    * @todo 게시물그룹을 다른 카테고리로 이동합니다.
    */
   static async updateWithMove(userId: number, dto: MovePostsDto) {
-
     await Collection.findByOrFail({
       id: dto.collectionId,
       userId: userId,
     })
 
-    await Post.query()
-      .where('user_id', userId)
-      .andWhereIn('id', dto.postIds)
-      .update({
-        collectionId: dto.collectionId,
-      })
+    await Post.query().where('user_id', userId).andWhereIn('id', dto.postIds).update({
+      collectionId: dto.collectionId,
+    })
   }
 
   /**
@@ -126,14 +127,11 @@ export default class PostApiService {
   static async destroys(userId: number, dto: DestroyPostDto) {
     const collection = await Collection.findByOrFail({
       userId: userId,
-      type: CollectionTypes.TRASH
+      type: CollectionTypes.TRASH,
     })
 
-    await Post.query()
-      .where('user_id', userId)
-      .andWhereIn('id', dto.postIds)
-      .update({
-        collectionId: collection.id,
-      })
+    await Post.query().where('user_id', userId).andWhereIn('id', dto.postIds).update({
+      collectionId: collection.id,
+    })
   }
 }

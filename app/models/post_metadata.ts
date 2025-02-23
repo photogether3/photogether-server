@@ -34,19 +34,18 @@ export default class PostMetadata extends BaseModel {
   @belongsTo(() => Post)
   declare post: BelongsTo<typeof Post>
 
-  static async creates(postId: number, metadatas: UpdateOrCreatePostMetadataDto[], trx: TransactionClientContract) {
-    const postMetadatas = await PostMetadata
-      .query()
-      .where('post_id', postId)
+  static async creates(
+    postId: number,
+    metadatas: UpdateOrCreatePostMetadataDto[],
+    trx: TransactionClientContract
+  ) {
+    const postMetadatas = await PostMetadata.query().where('post_id', postId)
 
     if (postMetadatas.length > 0) {
-      await PostMetadata
-        .query()
-        .where('post_id', postId)
-        .delete()
+      await PostMetadata.query().where('post_id', postId).delete()
     }
 
-    const createMetadata = metadatas.map(x => ({ ...x, postId }))
+    const createMetadata = metadatas.map((x) => ({ ...x, postId }))
 
     await PostMetadata.createMany(createMetadata, { client: trx })
   }
