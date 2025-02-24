@@ -1,0 +1,26 @@
+@let(currentUrl = request.parsedUrl.pathname)
+
+<nav>
+  <ul class="flex flex-col w-full gap-4">
+    <li class="w-full">
+      <a
+        class="block w-full p-4 rounded-sm {{ currentUrl === route('dashboard') ? 'text-white bg-blue-500' : '' }}"
+        href="{{ route('dashboard') }}"
+      >대쉬보드</a>
+    </li>
+    <li>
+      <a
+        class="block w-full p-4 rounded-sm {{ currentUrl === route('users.index') ? 'text-white bg-blue-500' : '' }}"
+        href="{{ route('users.index') }}"
+      >회원 관리</a>
+    </li>
+    <li>
+      <a
+        class="block w-full p-4 rounded-sm {{ currentUrl === route('categories.index') ? 'text-white bg-blue-500' : '' }}"
+        href="{{ route('categories.index') }}"
+      >
+        카테고리 관리
+      </a>
+    </li>
+  </ul>
+</nav>

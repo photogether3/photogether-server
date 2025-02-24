@@ -10,6 +10,9 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
 
+const UserWebController = () => import('#controllers/web/user_web_controller')
+const CategoryWebController = () => import('#controllers/web/category_web_controller')
+
 router.get('/favicon.ico', async ({ response }) => {
   return response.status(204).send('')
 })
@@ -19,6 +22,18 @@ router
     return ctx.view.render('pages/dashboard')
   })
   .as('dashboard')
+
+router
+  .group(() => {
+    router.get('', [UserWebController, 'index']).as('users.index')
+  })
+  .prefix('/users')
+
+router
+  .group(() => {
+    router.get('', [CategoryWebController, 'index']).as('categories.index')
+  })
+  .prefix('/categories')
 
 router
   .group(() => {

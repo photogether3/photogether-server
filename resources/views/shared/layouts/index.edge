@@ -2,7 +2,6 @@
 
 <!DOCTYPE html>
 <html lang="ko" data-theme="light">
-
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,20 +14,17 @@
       {{ title ? `${title} | ${subTitle}`: subTitle }}
     </title>
 
-    <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.12/dist/turbo.es2017-umd.min.js">
-      
-    </script>
-
     @vite(['resources/js/app.js','resources/css/app.css'])
   </head>
 
   <body>
-    <main class="lg:pl-72">
-      <div class="px-4 py-10 sm:px-6 lg:px-8 lg:py-6">
-        <!-- Main area -->
-        {{{ await $slots.main() }}}
+    <div class="flex justify-start">
+      <div class="w-full sm:max-w-[300px] border-r fixed inset-0 p-4">
+        @!component('shared/components/nav', {  })
       </div>
-    </main>
+      <main class="ml-[300px] w-[calc(100%-300px)] p-4">
+        {{{ await $slots.main() }}}
+      </main>
+    </div>
   </body>
-
 </html>
