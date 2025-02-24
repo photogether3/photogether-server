@@ -23,6 +23,16 @@
   </head>
 
   <body>
+    <nav class="">
+      <ul>
+        <li>
+          <a class="{{ request.parsedUrl.pathname === '/' ? 'bg-red-500' : '' }}" href="{{ route('dashboard') }}">대시보드</a>
+        </li>
+        <li>
+          <a class="{{ request.parsedUrl.pathname === '/users' ? 'bg-red-500' : '' }}"  href="{{ route('users.index') }}">사용자</a>
+        </li>
+      </ul>
+    </nav>
     <main class="lg:pl-72">
       <div class="px-4 py-10 sm:px-6 lg:px-8 lg:py-6">
         <!-- Main area -->

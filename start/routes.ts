@@ -10,21 +10,34 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from './kernel.js'
 
+const UserWebController = () => import('#controllers/web/user_web_controller')
+const UserApiController = () => import('#controllers/api/user_api_controller')
+const AuthApiController = () => import('#controllers/api/auth_api_controller')
+const CategoryApiController = () => import('#controllers/api/category_api_controller')
+const FavoriteApiController = () => import('#controllers/api/favorite_api_controller')
+const CollectionApiController = () => import('#controllers/api/collection_api_controller')
+const PostApiController = () => import('#controllers/api/post_api_controller')
+
 router.get('/favicon.ico', async ({ response }) => {
   return response.status(204).send('')
 })
 
 router
   .get('/', async (ctx) => {
-    return ctx.view.render('pages/dashboard')
+    return ctx.view.render('pages/dashboard', { currentUrl: ctx.request.url() })
   })
   .as('dashboard')
 
 router
   .group(() => {
+    router.get('', [UserWebController, 'index']).as('users.index')
+  })
+  .prefix('users')
+
+router
+  .group(() => {
     router
       .group(() => {
-        const AuthApiController = () => import('#controllers/api/auth_api_controller')
         router.post('/login', [AuthApiController, 'login'])
         router.post('/register', [AuthApiController, 'register'])
         router.post('/otp/generate', [AuthApiController, 'generateOtp'])
@@ -36,7 +49,6 @@ router
 
     router
       .group(() => {
-        const UserApiController = () => import('#controllers/api/user_api_controller')
         router.get('/emails/:email/duplicated', [UserApiController, 'isEmailTaken'])
         router.get('/me', [UserApiController, 'profile']).middleware(middleware.auth())
         router
@@ -54,7 +66,6 @@ router
 
     router
       .group(() => {
-        const CategoryApiController = () => import('#controllers/api/category_api_controller')
         router.get('', [CategoryApiController, 'index'])
         router
           .get('/with-favorite-status', [CategoryApiController, 'indexWithFavorite'])
@@ -66,7 +77,6 @@ router
 
     router
       .group(() => {
-        const FavoriteApiController = () => import('#controllers/api/favorite_api_controller')
         router.get('', [FavoriteApiController, 'index']).middleware(middleware.auth())
         router.put('', [FavoriteApiController, 'storeOrUpdate']).middleware(middleware.auth())
       })
@@ -74,7 +84,6 @@ router
 
     router
       .group(() => {
-        const CollectionApiController = () => import('#controllers/api/collection_api_controller')
         router.get('', [CollectionApiController, 'index']).middleware(middleware.auth())
         router
           .get('/:collectionId', [CollectionApiController, 'show'])
@@ -91,7 +100,6 @@ router
 
     router
       .group(() => {
-        const PostApiController = () => import('#controllers/api/post_api_controller')
         router.get('', [PostApiController, 'index']).middleware(middleware.auth())
         router.get('/:postId', [PostApiController, 'show']).middleware(middleware.auth())
         router
